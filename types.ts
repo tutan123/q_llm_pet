@@ -19,6 +19,13 @@ export interface ChatMessage {
   isToolCall?: boolean;
 }
 
+export interface LLMSettings {
+  provider: 'gemini' | 'custom';
+  apiKey: string;
+  baseUrl: string; // Used for custom
+  modelName: string; // Used for custom or gemini override
+}
+
 export const AVAILABLE_ACTIONS: ActionType[] = [
   'IDLE', 'WALK', 'RUN', 'JUMP', 'WAVE', 'DANCE', 
   'SPIN', 'SHIVER', 'SLEEP', 'BOW', 'NO', 'YES',

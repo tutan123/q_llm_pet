@@ -4,8 +4,16 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stars, Environment, ContactShadows, SpotLight } from '@react-three/drei';
 import { Penguin3D } from './components/Penguin3D';
 import { Stage } from './components/Stage';
-import { ActionType, AnimationRequest, ChatMessage } from './types';
-import { sendMessageToGemini } from './services/geminiService';
+import { SettingsModal } from './components/SettingsModal';
+import { ActionType, AnimationRequest, ChatMessage, LLMSettings } from './types';
+import { sendMessageToLLM } from './services/llmService';
+
+const DEFAULT_SETTINGS: LLMSettings = {
+  provider: 'gemini',
+  apiKey: '',
+  baseUrl: 'http://localhost:11434/v1',
+  modelName: 'llama3'
+};
 
 const App = () => {
   // --- State ---
@@ -14,6 +22,12 @@ const App = () => {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [llmSettings, setLlmSettings] = useState<LLMSettings>(() => {
+    const saved = localStorage.getItem('penguin_llm_settings');
+    return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+  });
   
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -40,6 +54,11 @@ const App = () => {
   }, []);
 
   // --- Handlers ---
+  const saveSettings = (newSettings: LLMSettings) => {
+    setLlmSettings(newSettings);
+    localStorage.setItem('penguin_llm_settings', JSON.stringify(newSettings));
+  };
+
   const addToQueue = (actions: string[]) => {
     const requests: AnimationRequest[] = actions.map(act => ({
       id: Math.random().toString(36).substring(7),
@@ -58,12 +77,8 @@ const App = () => {
     setIsProcessing(true);
 
     try {
-      const historyForApi = chatHistory.map(m => ({
-        role: m.role,
-        parts: [{ text: m.content }]
-      }));
-
-      const response = await sendMessageToGemini(historyForApi, userMsg.content);
+      // Use the unified LLM service that respects settings
+      const response = await sendMessageToLLM(chatHistory, userMsg.content, llmSettings);
 
       if (response.text) {
         setChatHistory(prev => [...prev, { role: 'model', content: response.text }]);
@@ -79,9 +94,13 @@ const App = () => {
          }]);
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("API Error:", error);
-      setChatHistory(prev => [...prev, { role: 'model', content: "Oops, I had a brain freeze (Error). Check console for details." }]);
+      let errorMsg = "Oops, I had a brain freeze.";
+      if (error.message.includes("Custom LLM Error")) {
+          errorMsg = `Connection Error: Check your URL/API Key.`;
+      }
+      setChatHistory(prev => [...prev, { role: 'model', content: errorMsg }]);
     } finally {
       setIsProcessing(false);
     }
@@ -90,6 +109,13 @@ const App = () => {
   return (
     <div className="flex h-screen w-full bg-slate-900 text-white font-sans overflow-hidden">
       
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)}
+        settings={llmSettings}
+        onSave={saveSettings}
+      />
+
       {/* 3D Viewport */}
       <div className="flex-1 relative h-full">
         <div className="absolute top-4 left-4 z-10 pointer-events-none select-none">
@@ -107,16 +133,24 @@ const App = () => {
           )}
         </div>
 
+        {/* Settings Trigger */}
+        <button 
+          onClick={() => setIsSettingsOpen(true)}
+          className="absolute top-4 right-4 z-20 p-2 bg-slate-800/50 hover:bg-slate-700 backdrop-blur rounded-full transition-all text-slate-300 hover:text-white"
+          title="Configure Model"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.39a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+
         <Canvas shadows camera={{ position: [0, 2, 8], fov: 40 }}>
           <color attach="background" args={['#050505']} />
           <Stars radius={100} depth={50} count={1000} factor={4} saturation={0} fade speed={0.5} />
           
-          {/* --- Three Point Lighting Setup --- */}
-          
-          {/* 1. Ambient Light (Fill) - Ensures nothing is pitch black */}
           <ambientLight intensity={0.5} color="#404060" />
 
-          {/* 2. Key Light - Main bright light source from front-right */}
           <spotLight 
             position={[5, 8, 5]} 
             angle={0.4} 
@@ -127,7 +161,6 @@ const App = () => {
             shadow-bias={-0.0001}
           />
 
-          {/* 3. Rim Light - Strong back light to separate penguin from dark background */}
           <spotLight 
             position={[-5, 5, -5]} 
             angle={0.5} 
@@ -136,22 +169,19 @@ const App = () => {
             color="#3b82f6" 
           />
           
-          {/* 4. Volumetric Stage Light - The "Beam" Effect */}
           <SpotLight
             distance={20}
             attenuation={5}
-            anglePower={5} // Diffuse-ish
+            anglePower={5}
             position={[0, 8, 0]} 
             target-position={[0, 0, 0]}
             color="#fffae0" 
-            opacity={0.3} // Visibility of the cone
+            opacity={0.3}
             angle={0.3}
           />
           
-          {/* Environment for reflections */}
           <Environment preset="city" blur={0.8} />
 
-          {/* Content */}
           <group position={[0, -1, 0]}>
              <Stage />
              <Penguin3D currentAction={currentAction} animationProgress={0} />
@@ -175,6 +205,9 @@ const App = () => {
           {chatHistory.length === 0 && (
              <div className="text-center text-slate-500 mt-10">
                 <p className="mb-2 text-amber-400 font-bold">✨ Showtime!</p>
+                <div className="text-xs font-mono text-slate-600 mb-4 bg-slate-800 p-2 rounded">
+                  Running on: <span className="text-blue-400">{llmSettings.provider === 'gemini' ? 'Gemini' : `Custom (${llmSettings.modelName})`}</span>
+                </div>
                 <p className="text-sm">Commands to try:</p>
                 <ul className="text-xs mt-2 space-y-1 text-slate-400">
                     <li>"Fly around the stage!"</li>
