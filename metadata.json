@@ -1,0 +1,5 @@
+{
+  "name": "Q-Penguin AI Avatar",
+  "description": "A Q-version 3D interactive avatar driven by Gemini Function Calling. Supports action sequences and natural language control.",
+  "requestFramePermissions": []
+}
