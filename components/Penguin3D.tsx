@@ -81,49 +81,33 @@ export const Penguin3D: React.FC<PenguinProps> = ({ currentAction }) => {
         break;
         
       case 'RUN_ACROSS':
-        // Run from -3 to 3 and back
-        // Period of 4 seconds
         const runCycle = Math.sin(at * 1.5); // -1 to 1
         targetWorldX = runCycle * 3.5;
         targetWorldY = -0.5 + Math.abs(Math.sin(t * 20)) * 0.1;
-        
-        // Face direction of movement
-        // Derivative of sin is cos. If cos > 0 moving right, else left
         const direction = Math.cos(at * 1.5);
         targetRotY = direction > 0 ? 1.57 : -1.57;
         targetRotX = 0.3; // Lean forward
-        
-        // Arms
         lwRotZ = 1.2;
         rwRotZ = -1.2;
         break;
 
       case 'FLY':
-        // Figure 8 pattern in air
         targetWorldX = Math.sin(at) * 3;
         targetWorldY = 2 + Math.sin(at * 2) * 0.5;
         targetWorldZ = Math.cos(at) * 1.5;
-        
-        // Face forward along path roughly
-        targetRotY = at + 1.57; // Just spin to look cool while flying
-        targetRotX = 1.57; // Horizontal body (superman)
-        
-        lwRotZ = 2.5; // Wings out
+        targetRotY = at + 1.57; 
+        targetRotX = 1.57; 
+        lwRotZ = 2.5; 
         rwRotZ = -2.5;
         break;
         
       case 'SLIDE':
-        // Belly slide
-        // Raise Y to 0.2 to account for body radius (0.7) when rotated 90deg, 
-        // ensuring belly sits on floor (-0.5) instead of clipping.
         targetWorldY = 0.2; 
-        targetRotX = 1.57; // Flat on belly
+        targetRotX = 1.57; 
         targetWorldX = Math.sin(at * 2) * 2;
-        
         const slideDir = Math.cos(at * 2);
         targetRotY = slideDir > 0 ? 1.57 : -1.57;
-        
-        lwRotZ = 3.0; // Streamline
+        lwRotZ = 3.0;
         rwRotZ = -3.0;
         break;
 
@@ -162,8 +146,8 @@ export const Penguin3D: React.FC<PenguinProps> = ({ currentAction }) => {
       case 'SLEEP':
         targetRotX = 0;
         targetRotZ = 1.57;
-        targetWorldY = -0.8; // Sleep might still clip slightly but looks like sinking into bed
-        if (targetWorldY < -0.5) targetWorldY = -0.3; // Fix sleep clipping too
+        targetWorldY = -0.8;
+        if (targetWorldY < -0.5) targetWorldY = -0.3;
         lwRotZ = 0.1;
         rwRotZ = -0.1;
         break;
@@ -188,32 +172,26 @@ export const Penguin3D: React.FC<PenguinProps> = ({ currentAction }) => {
         break;
         
       case 'BACKFLIP':
-        const flipDuration = 1.5; // Complete flip in 1.5s
+        const flipDuration = 1.5;
         if (at < flipDuration) {
           const progress = at / flipDuration;
-          // High jump to avoid head clipping when inverted
           targetWorldY = -0.5 + Math.sin(progress * Math.PI) * 3.5; 
-          // Full 360 rotation
           targetRotX = progress * Math.PI * 2;
         } else {
-          // Landed
           targetWorldY = -0.5;
           targetRotX = 0; 
         }
         break;
         
       case 'FIGHT':
-        // Boxing
         targetRotY = -0.5;
         lwRotZ = 1.5;
         rwRotZ = -1.5;
-        // Punching motion
         group.rotation.y = Math.sin(t * 10) * 0.2;
         leftWing.rotation.x = Math.sin(t * 20) * 0.5;
         break;
       
       case 'DAZZLE':
-        // Jazz hands
         targetRotY = Math.sin(t * 5) * 0.2;
         lwRotZ = 2.5 + Math.sin(t * 20) * 0.2;
         rwRotZ = -2.5 + Math.cos(t * 20) * 0.2;
@@ -224,17 +202,11 @@ export const Penguin3D: React.FC<PenguinProps> = ({ currentAction }) => {
         break;
     }
 
-    // Apply Transforms with Lerp for smoothness (Pose)
     const speed = 0.15;
-    
     group.position.x += (targetWorldX - group.position.x) * speed;
     group.position.y += (targetWorldY - group.position.y) * speed;
     group.position.z += (targetWorldZ - group.position.z) * speed;
 
-    // For Backflip, we want sharp rotation control, but lerp is okay if speed is high enough
-    // We'll trust the speed=0.15 is fast enough for 60fps, otherwise snap it for Backflip?
-    // Let's keep lerp for smoothness, but maybe increase speed if needed. 
-    
     group.rotation.y += (targetRotY - group.rotation.y) * speed;
     group.rotation.x += (targetRotX - group.rotation.x) * speed;
     group.rotation.z += (targetRotZ - group.rotation.z) * speed;
@@ -249,67 +221,103 @@ export const Penguin3D: React.FC<PenguinProps> = ({ currentAction }) => {
 
   return (
     <group ref={groupRef} position={[0, -0.5, 0]}>
-      {/* BODY */}
+      {/* --- BODY --- */}
+      {/* High poly capsule for smoother look */}
       <mesh ref={bodyRef} position={[0, 0.8, 0]} castShadow>
-        <capsuleGeometry args={[0.7, 1.2, 4, 16]} />
-        <meshStandardMaterial color="#222" roughness={0.5} />
+        <capsuleGeometry args={[0.7, 1.2, 8, 32]} />
+        {/* Physical material for plastic toy look */}
+        <meshPhysicalMaterial 
+            color="#1e293b" 
+            roughness={0.4} 
+            clearcoat={0.3} 
+            clearcoatRoughness={0.2} 
+        />
       </mesh>
 
-      {/* BELLY */}
-      <mesh position={[0, 0.7, 0.6]} scale={[0.8, 0.9, 0.5]}>
+      {/* --- BELLY --- */}
+      {/* Smoother belly patch */}
+      <mesh position={[0, 0.7, 0.58]} scale={[0.82, 0.9, 0.5]}>
         <sphereGeometry args={[0.6, 32, 32]} />
-        <meshStandardMaterial color="#fff" roughness={0.8} />
+        <meshStandardMaterial color="#f8fafc" roughness={0.9} />
       </mesh>
 
-      {/* HEAD GROUP */}
+      {/* --- HEAD --- */}
       <group ref={headRef} position={[0, 1.6, 0]}>
-         {/* Beak */}
+         {/* Beak - Rounded cone */}
          <mesh position={[0, -0.1, 0.6]} rotation={[1.57, 0, 0]} castShadow>
             <coneGeometry args={[0.15, 0.4, 32]} />
-            <meshStandardMaterial color="#fbbf24" />
+            <meshStandardMaterial color="#f59e0b" roughness={0.3} />
          </mesh>
 
-         {/* Eyes */}
-         <mesh position={[-0.25, 0.1, 0.5]}>
-            <sphereGeometry args={[0.08]} />
-            <meshStandardMaterial color="black" roughness={0.1} />
+         {/* Eyes - Larger, shinier */}
+         <mesh position={[-0.25, 0.1, 0.52]}>
+            <sphereGeometry args={[0.09, 16, 16]} />
+            <meshStandardMaterial color="#000" roughness={0.1} metalness={0.5} />
          </mesh>
-         <mesh position={[0.25, 0.1, 0.5]}>
-            <sphereGeometry args={[0.08]} />
-            <meshStandardMaterial color="black" roughness={0.1} />
+         <mesh position={[0.25, 0.1, 0.52]}>
+            <sphereGeometry args={[0.09, 16, 16]} />
+            <meshStandardMaterial color="#000" roughness={0.1} metalness={0.5} />
          </mesh>
-          {/* Eye sparkle */}
-         <mesh position={[-0.28, 0.15, 0.55]}>
-            <sphereGeometry args={[0.02]} />
+          
+         {/* Eye Reflections (Highlights) */}
+         <mesh position={[-0.28, 0.14, 0.58]}>
+            <sphereGeometry args={[0.025, 8, 8]} />
             <meshBasicMaterial color="white" />
          </mesh>
-         <mesh position={[0.22, 0.15, 0.55]}>
-            <sphereGeometry args={[0.02]} />
+         <mesh position={[0.22, 0.14, 0.58]}>
+            <sphereGeometry args={[0.025, 8, 8]} />
             <meshBasicMaterial color="white" />
+         </mesh>
+
+         {/* Rosy Cheeks (Blush) */}
+         <mesh position={[-0.35, -0.05, 0.45]} rotation={[0, 0.5, 0]}>
+            <circleGeometry args={[0.08, 16]} />
+            <meshBasicMaterial color="#f472b6" opacity={0.6} transparent depthWrite={false} />
+         </mesh>
+         <mesh position={[0.35, -0.05, 0.45]} rotation={[0, -0.5, 0]}>
+            <circleGeometry args={[0.08, 16]} />
+            <meshBasicMaterial color="#f472b6" opacity={0.6} transparent depthWrite={false} />
          </mesh>
       </group>
 
-      {/* WINGS */}
+      {/* --- ACCESSORIES --- */}
+      {/* Bowtie */}
+      <group position={[0, 1.35, 0.55]} rotation={[0.2, 0, 0]}>
+        <mesh position={[-0.15, 0, 0]} rotation={[0, 0, 0.2]}>
+            <coneGeometry args={[0.12, 0.3, 16]} />
+            <meshStandardMaterial color="#ef4444" />
+        </mesh>
+        <mesh position={[0.15, 0, 0]} rotation={[0, 0, -0.2]}>
+            <coneGeometry args={[0.12, 0.3, 16]} />
+            <meshStandardMaterial color="#ef4444" />
+        </mesh>
+        <mesh rotation={[1.57, 0, 0]}>
+             <cylinderGeometry args={[0.05, 0.05, 0.1, 8]} />
+             <meshStandardMaterial color="#b91c1c" />
+        </mesh>
+      </group>
+
+      {/* --- WINGS --- */}
       <group position={[0, 1.0, 0]}>
-        <mesh ref={leftWingRef} position={[-0.65, 0, 0]} castShadow>
-            <capsuleGeometry args={[0.15, 0.8, 4, 8]} />
-            <meshStandardMaterial color="#222" roughness={0.5} />
+        <mesh ref={leftWingRef} position={[-0.68, 0, 0]} rotation={[0, 0, 0.1]} castShadow>
+            <capsuleGeometry args={[0.15, 0.8, 8, 16]} />
+            <meshPhysicalMaterial color="#1e293b" roughness={0.4} clearcoat={0.3} />
         </mesh>
-        <mesh ref={rightWingRef} position={[0.65, 0, 0]} castShadow>
-            <capsuleGeometry args={[0.15, 0.8, 4, 8]} />
-            <meshStandardMaterial color="#222" roughness={0.5} />
+        <mesh ref={rightWingRef} position={[0.68, 0, 0]} rotation={[0, 0, -0.1]} castShadow>
+            <capsuleGeometry args={[0.15, 0.8, 8, 16]} />
+            <meshPhysicalMaterial color="#1e293b" roughness={0.4} clearcoat={0.3} />
         </mesh>
       </group>
 
-      {/* FEET */}
+      {/* --- FEET --- */}
       <group position={[0, 0.1, 0]}>
         <mesh position={[-0.3, 0, 0.3]} scale={[1, 0.3, 1.5]} castShadow>
-           <sphereGeometry args={[0.25]} />
-           <meshStandardMaterial color="#fbbf24" roughness={0.3} />
+           <sphereGeometry args={[0.28, 16, 16]} />
+           <meshStandardMaterial color="#f59e0b" roughness={0.5} />
         </mesh>
         <mesh position={[0.3, 0, 0.3]} scale={[1, 0.3, 1.5]} castShadow>
-           <sphereGeometry args={[0.25]} />
-           <meshStandardMaterial color="#fbbf24" roughness={0.3} />
+           <sphereGeometry args={[0.28, 16, 16]} />
+           <meshStandardMaterial color="#f59e0b" roughness={0.5} />
         </mesh>
       </group>
     </group>
