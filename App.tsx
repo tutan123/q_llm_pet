@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { createRoot } from 'react-dom/client';
+import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stars, Environment, ContactShadows, SpotLight } from '@react-three/drei';
 import { Penguin3D } from './components/Penguin3D';
@@ -180,13 +179,15 @@ const App = () => {
             angle={0.3}
           />
           
-          <Environment preset="city" blur={0.8} />
+          <Suspense fallback={null}>
+            <Environment preset="city" blur={0.8} />
 
-          <group position={[0, -1, 0]}>
-             <Stage />
-             <Penguin3D currentAction={currentAction} animationProgress={0} />
-             <ContactShadows opacity={0.7} scale={10} blur={2} far={4} resolution={256} color="#000000" />
-          </group>
+            <group position={[0, -1, 0]}>
+               <Stage />
+               <Penguin3D currentAction={currentAction} animationProgress={0} />
+               <ContactShadows opacity={0.7} scale={10} blur={2} far={4} resolution={256} color="#000000" />
+            </group>
+          </Suspense>
           
           <OrbitControls 
             minPolarAngle={Math.PI / 4} 

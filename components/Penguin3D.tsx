@@ -30,7 +30,7 @@ export const Penguin3D: React.FC<PenguinProps> = ({ currentAction }) => {
   }, [currentAction]);
 
   useFrame((state, delta) => {
-    if (!groupRef.current) return;
+    if (!groupRef.current || !leftWingRef.current || !rightWingRef.current || !headRef.current) return;
     
     globalTime.current += delta;
     actionTime.current += delta;
@@ -39,10 +39,10 @@ export const Penguin3D: React.FC<PenguinProps> = ({ currentAction }) => {
     const at = actionTime.current;
     
     // Components
-    const group = groupRef.current!;
-    const leftWing = leftWingRef.current!;
-    const rightWing = rightWingRef.current!;
-    const head = headRef.current!;
+    const group = groupRef.current;
+    const leftWing = leftWingRef.current;
+    const rightWing = rightWingRef.current;
+    const head = headRef.current;
 
     // --- Transforms ---
     // Poses
