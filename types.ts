@@ -20,9 +20,9 @@ export interface ChatMessage {
 }
 
 export interface LLMSettings {
-  provider: 'gemini' | 'custom';
+  provider: 'gemini' | 'custom' | 'functiongemma';
   apiKey: string;
-  baseUrl: string; // Used for custom
+  baseUrl: string; // Used for custom and functiongemma
   modelName: string; // Used for custom or gemini override
 }
 

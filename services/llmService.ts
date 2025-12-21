@@ -1,6 +1,7 @@
 import { ChatMessage, LLMSettings } from "../types";
 import { sendMessageToGemini } from "./geminiService";
 import { sendToCustomLLM } from "./customLLMService";
+import { sendToFunctionGemma } from "./functionGemmaService";
 
 export const sendMessageToLLM = async (
   history: ChatMessage[],
@@ -9,6 +10,8 @@ export const sendMessageToLLM = async (
 ) => {
   if (settings.provider === 'custom') {
     return await sendToCustomLLM(history, newMessage, settings);
+  } else if (settings.provider === 'functiongemma') {
+    return await sendToFunctionGemma(history, newMessage, settings);
   } else {
     // Transform simple ChatMessage[] to the specific format expected by geminiService
     const geminiHistory = history.map(h => ({

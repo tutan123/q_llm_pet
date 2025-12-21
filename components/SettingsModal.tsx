@@ -37,40 +37,56 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
             <div className="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
               <button
                 onClick={() => setLocalSettings({...localSettings, provider: 'gemini'})}
-                className={`flex-1 py-1.5 text-sm rounded-md transition-colors ${
+                className={`flex-1 py-1.5 text-xs rounded-md transition-colors ${
                   localSettings.provider === 'gemini' 
                     ? 'bg-blue-600 text-white shadow-sm' 
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                Google Gemini
+                Gemini
               </button>
               <button
                 onClick={() => setLocalSettings({...localSettings, provider: 'custom'})}
-                className={`flex-1 py-1.5 text-sm rounded-md transition-colors ${
+                className={`flex-1 py-1.5 text-xs rounded-md transition-colors ${
                   localSettings.provider === 'custom' 
                     ? 'bg-blue-600 text-white shadow-sm' 
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                Custom / OpenAI
+                OpenAI
+              </button>
+              <button
+                onClick={() => setLocalSettings({...localSettings, provider: 'functiongemma'})}
+                className={`flex-1 py-1.5 text-xs rounded-md transition-colors ${
+                  localSettings.provider === 'functiongemma' 
+                    ? 'bg-blue-600 text-white shadow-sm' 
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Gemma
               </button>
             </div>
           </div>
 
           {/* Configuration Fields */}
-          {localSettings.provider === 'custom' && (
+          {(localSettings.provider === 'custom' || localSettings.provider === 'functiongemma') && (
             <>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase mb-1">Base URL</label>
+                <label className="block text-xs font-semibold text-slate-400 uppercase mb-1">
+                  {localSettings.provider === 'functiongemma' ? 'API Endpoint' : 'Base URL'}
+                </label>
                 <input
                   type="text"
                   value={localSettings.baseUrl}
                   onChange={(e) => setLocalSettings({...localSettings, baseUrl: e.target.value})}
-                  placeholder="e.g. http://localhost:11434/v1"
+                  placeholder={localSettings.provider === 'functiongemma' ? "http://localhost:11434/api/generate" : "http://localhost:11434/v1"}
                   className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
                 />
-                <p className="text-[10px] text-slate-500 mt-1">For Ollama: http://localhost:11434/v1</p>
+                <p className="text-[10px] text-slate-500 mt-1">
+                  {localSettings.provider === 'functiongemma' 
+                    ? "Ollama 用户请务必使用 /api/generate 结尾" 
+                    : "For Ollama: http://localhost:11434/v1"}
+                </p>
               </div>
 
               <div>
@@ -79,7 +95,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                   type="password"
                   value={localSettings.apiKey}
                   onChange={(e) => setLocalSettings({...localSettings, apiKey: e.target.value})}
-                  placeholder="sk-..."
+                  placeholder="sk-... (optional for local)"
                   className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
                 />
               </div>
@@ -90,7 +106,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                   type="text"
                   value={localSettings.modelName}
                   onChange={(e) => setLocalSettings({...localSettings, modelName: e.target.value})}
-                  placeholder="e.g. llama3"
+                  placeholder="e.g. function-gemma"
                   className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
                 />
               </div>
@@ -101,6 +117,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
              <div className="p-3 bg-slate-900/50 rounded-lg border border-slate-700 text-xs text-slate-400">
                <p>Using the embedded Google GenAI integration.</p>
                <p className="mt-1">The system will use the default Gemini 3 Flash model optimized for tool use.</p>
+             </div>
+          )}
+
+          {localSettings.provider === 'functiongemma' && (
+             <div className="p-3 bg-slate-900/50 rounded-lg border border-slate-700 text-xs text-slate-400">
+               <p>Using FunctionGemma specific prompt format.</p>
+               <p className="mt-1">Ensure your local endpoint supports the generation API and uses the correct chat template.</p>
              </div>
           )}
 
