@@ -5,7 +5,10 @@ export type ActionType =
   | 'LOOK_LEFT' | 'LOOK_RIGHT' | 'ROLL' | 'BACKFLIP'
   | 'CLAP' | 'THINK' | 'SIT' | 'FIGHT' | 'SWIM' 
   | 'DAZZLE' | 'HIDE' | 'PEEK' | 'LOVE' 
-  | 'FLY' | 'RUN_ACROSS' | 'SLIDE';
+  | 'FLY' | 'RUN_ACROSS' | 'SLIDE'
+  | 'KICK' | 'PUNCH' | 'KUNG_FU' | 'TAI_CHI' | 'MEDITATE'
+  | 'BREAKDANCE' | 'BALLET' | 'SALSA' | 'HIP_HOP' | 'MOONWALK'
+  | 'PRAY' | 'SALUTE' | 'CRY' | 'LAUGH' | 'YAWN' | 'SNEEZE' | 'SHOCKED';
 
 export interface AnimationRequest {
   id: string;
@@ -33,5 +36,8 @@ export const AVAILABLE_ACTIONS: ActionType[] = [
   'LOOK_LEFT', 'LOOK_RIGHT', 'ROLL', 'BACKFLIP',
   'CLAP', 'THINK', 'SIT', 'FIGHT', 'SWIM', 
   'DAZZLE', 'HIDE', 'PEEK', 'LOVE',
-  'FLY', 'RUN_ACROSS', 'SLIDE'
+  'FLY', 'RUN_ACROSS', 'SLIDE',
+  'KICK', 'PUNCH', 'KUNG_FU', 'TAI_CHI', 'MEDITATE',
+  'BREAKDANCE', 'BALLET', 'SALSA', 'HIP_HOP', 'MOONWALK',
+  'PRAY', 'SALUTE', 'CRY', 'LAUGH', 'YAWN', 'SNEEZE', 'SHOCKED'
 ];

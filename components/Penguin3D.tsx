@@ -164,11 +164,41 @@ export const Penguin3D: React.FC<PenguinProps> = ({ currentAction }) => {
         rwRotZ = -2.5;
         break;
         
+      case 'SAD':
+        targetRotX = 0.2;
+        headRotY = Math.sin(t * 2) * 0.2;
+        lwRotZ = 0.1;
+        rwRotZ = -0.1;
+        targetWorldY = -0.6;
+        break;
+
+      case 'ANGRY':
+        targetRotX = -0.2;
+        targetRotY = Math.sin(t * 30) * 0.1;
+        lwRotZ = 1.5;
+        rwRotZ = -1.5;
+        break;
+
       case 'SURPRISE':
         targetWorldY = 0;
         targetRotX = -0.2;
         lwRotZ = 2.0;
         rwRotZ = -2.0;
+        break;
+
+      case 'LOOK_LEFT':
+        headRotY = 1.0;
+        break;
+
+      case 'LOOK_RIGHT':
+        headRotY = -1.0;
+        break;
+
+      case 'ROLL':
+        targetRotZ = at * 10;
+        targetWorldY = -0.2;
+        lwRotZ = 3.0;
+        rwRotZ = -3.0;
         break;
         
       case 'BACKFLIP':
@@ -182,6 +212,24 @@ export const Penguin3D: React.FC<PenguinProps> = ({ currentAction }) => {
           targetRotX = 0; 
         }
         break;
+
+      case 'CLAP':
+        lwRotZ = 1.5 + Math.sin(t * 20) * 0.8;
+        rwRotZ = -1.5 - Math.sin(t * 20) * 0.8;
+        break;
+
+      case 'THINK':
+        headRotY = Math.sin(t) * 0.5;
+        rwRotZ = -2.0;
+        targetRotX = 0.1;
+        break;
+
+      case 'SIT':
+        targetWorldY = -0.8;
+        targetRotX = -0.2;
+        lwRotZ = 0.5;
+        rwRotZ = -0.5;
+        break;
         
       case 'FIGHT':
         targetRotY = -0.5;
@@ -191,10 +239,113 @@ export const Penguin3D: React.FC<PenguinProps> = ({ currentAction }) => {
         leftWing.rotation.x = Math.sin(t * 20) * 0.5;
         break;
       
+      case 'SWIM':
+        targetRotX = 1.57;
+        targetWorldY = -0.2;
+        lwRotZ = 2.0 + Math.sin(t * 5) * 1.0;
+        rwRotZ = -2.0 - Math.sin(t * 5) * 1.0;
+        break;
+
       case 'DAZZLE':
         targetRotY = Math.sin(t * 5) * 0.2;
         lwRotZ = 2.5 + Math.sin(t * 20) * 0.2;
         rwRotZ = -2.5 + Math.cos(t * 20) * 0.2;
+        break;
+
+      case 'HIDE':
+        targetWorldY = -1.2;
+        break;
+
+      case 'PEEK':
+        targetWorldY = -0.8 + Math.sin(t * 2) * 0.2;
+        break;
+
+      case 'LOVE':
+        targetWorldY = -0.5 + Math.abs(Math.sin(t * 5)) * 0.3;
+        lwRotZ = 2.0;
+        rwRotZ = -2.0;
+        break;
+
+      case 'KICK':
+        targetRotZ = Math.sin(at * 10) * 0.8;
+        targetWorldY = -0.3;
+        break;
+
+      case 'PUNCH':
+        lwRotZ = 1.0 + Math.sin(at * 20) * 1.5;
+        break;
+
+      case 'KUNG_FU':
+        targetRotY = Math.sin(t * 5);
+        lwRotZ = 1.5 + Math.sin(t * 10);
+        rwRotZ = -1.5 + Math.cos(t * 10);
+        targetWorldY = -0.5 + Math.abs(Math.sin(t * 5)) * 0.5;
+        break;
+
+      case 'TAI_CHI':
+        const slowT = t * 0.5;
+        targetRotY = Math.sin(slowT);
+        lwRotZ = 1.0 + Math.sin(slowT * 2);
+        rwRotZ = -1.0 + Math.cos(slowT * 2);
+        targetWorldY = -0.5 + Math.sin(slowT) * 0.2;
+        break;
+
+      case 'MEDITATE':
+        targetWorldY = -0.7;
+        lwRotZ = 0.2;
+        rwRotZ = -0.2;
+        headRotY = 0;
+        break;
+
+      case 'BREAKDANCE':
+        targetRotX = 1.57;
+        targetRotY = t * 10;
+        targetWorldY = 0.5;
+        lwRotZ = 2.5;
+        rwRotZ = -2.5;
+        break;
+
+      case 'BALLET':
+        targetRotY = t * 4;
+        targetWorldY = 0.2;
+        lwRotZ = 2.5;
+        rwRotZ = -2.5;
+        break;
+
+      case 'MOONWALK':
+        targetWorldX = Math.sin(at) * 2;
+        targetRotY = 1.57;
+        targetWorldY = -0.5 + Math.abs(Math.sin(at * 10)) * 0.1;
+        break;
+
+      case 'SALUTE':
+        rwRotZ = -2.8;
+        break;
+
+      case 'CRY':
+        targetRotX = 0.5;
+        headRotY = Math.sin(t * 10) * 0.1;
+        targetWorldY = -0.6;
+        break;
+
+      case 'LAUGH':
+        targetWorldY = -0.5 + Math.abs(Math.sin(t * 15)) * 0.3;
+        targetRotX = -0.2;
+        break;
+
+      case 'SNEEZE':
+        if (at % 2 < 1.5) {
+          targetRotX = 0.5;
+        } else {
+          targetRotX = -0.8;
+        }
+        break;
+
+      case 'SHOCKED':
+        targetWorldY = 0.2;
+        targetRotX = -0.4;
+        lwRotZ = 2.8;
+        rwRotZ = -2.8;
         break;
 
       default:

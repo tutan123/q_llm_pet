@@ -3,36 +3,20 @@ import { SYSTEM_INSTRUCTION } from "../constants";
 
 /**
  * Service for FunctionGemma models.
- * Implements the specific prompt formatting and tool call parsing 
- * defined in the model's chat template.
  */
-
-const FUNCTION_DECLARATION = `declaration:animate_avatar{description:<escape>Controls the 3D penguin avatar to perform a sequence of actions on stage.<escape>,parameters:{properties:{actions:{description:<escape>An ordered list of actions for the avatar to perform.<escape>,items:{type:<escape>STRING<escape>,enum:[${AVAILABLE_ACTIONS.map(a => `<escape>${a}<escape>`).join(',')}]},type:<escape>ARRAY<escape>}},required:[<escape>actions<escape>],type:<escape>OBJECT<escape>}}`;
 
 export const sendToFunctionGemma = async (
   history: ChatMessage[],
   newMessage: string,
   settings: LLMSettings
 ) => {
-  // 1. Build the prompt according to the Jinja template
-  let prompt = `<start_of_turn>developer\n${SYSTEM_INSTRUCTION}\n`;
-  prompt += `<start_function_declaration>${FUNCTION_DECLARATION}<end_function_declaration>\n`;
-  prompt += `<end_of_turn>\n`;
+  // 1. 构造紧凑的工具声明（模仿 test_api_pet.py，使用 JSON.stringify 节省 Token）
+  const TOOL_DECLARATION = `<start_function_declaration>declaration:animate_avatar{description:<escape>Controls the 3D penguin avatar to perform a sequence of actions on stage.<escape>,parameters:{properties:{actions:{description:<escape>An ordered list of actions for the avatar to perform.<escape>,items:{enum:${JSON.stringify(AVAILABLE_ACTIONS)},type:<escape>STRING<escape>},type:<escape>ARRAY<escape>}},required:[<escape>actions<escape>],type:<escape>OBJECT<escape>}}<end_function_declaration>`;
 
-  // Add history
-  for (const msg of history) {
-    const role = msg.role === 'model' ? 'model' : 'user';
-    prompt += `<start_of_turn>${role}\n${msg.content}<end_of_turn>\n`;
-  }
-
-  // Add new message
-  prompt += `<start_of_turn>user\n${newMessage}<end_of_turn>\n`;
-  prompt += `<start_of_turn>model\n`;
+  const systemPrompt = `You are a model that can do function calling with the following functions\n${TOOL_DECLARATION}\n\n${SYSTEM_INSTRUCTION}`;
 
   // 2. Make the API request
-  // We assume a standard generation endpoint (like Ollama's /api/generate)
-  // or a compatible endpoint provided in settings.baseUrl
-  const response = await fetch(settings.baseUrl, {
+  const response = await fetch(`${settings.baseUrl.replace(/\/completions$/, '')}/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -40,10 +24,15 @@ export const sendToFunctionGemma = async (
     },
     body: JSON.stringify({
       model: settings.modelName,
-      prompt: prompt,
+      messages: [
+        { role: "developer", content: systemPrompt },
+        { role: "user", content: newMessage }
+      ],
+      // 不传递 tools 参数，避免触发服务器的 "auto" tool choice 限制错误
       stream: false,
-      raw: true,
-      stop: ["<end_of_turn>", "<start_of_turn>"]
+      temperature: 0.1,
+      max_tokens: 256,
+      stop: ["<end_of_turn>", "<end_function_call>", "<bos>", "<eos>"]
     })
   });
 
@@ -53,34 +42,26 @@ export const sendToFunctionGemma = async (
   }
 
   const data = await response.json();
-  const rawResponse = data.response || data.content || "";
-
-  // 3. Parse the response
-  let text = rawResponse;
+  const choice = data.choices?.[0];
+  const responseText = choice?.message?.content || "";
+  
+  let text = responseText;
   let toolResult: any = null;
 
-  // Check for function call: <start_function_call>call:name{arguments}<end_function_call>
-  const callMatch = rawResponse.match(/<start_function_call>call:animate_avatar\{(.*)\}<end_function_call>/);
-  
+  // 3. 鲁棒的解析逻辑：从文本中提取 call:animate_avatar
+  const callMatch = responseText.match(/call:animate_avatar\{actions:\[(.*?)(?:\]|$)/);
   if (callMatch) {
-    const argsStr = callMatch[1];
-    // The format is key:<escape>value<escape> or key:[...]
-    // For animate_avatar, we expect actions:[...]
+    const actionsRaw = callMatch[1];
+    const actions = actionsRaw
+        .split(',')
+        .map((a: string) => a.replace(/<escape>/g, '').replace(/['"]/g, '').trim())
+        .filter((a: string) => a.length > 0);
     
-    // Simplistic parsing for the specific actions array
-    const actionsMatch = argsStr.match(/actions:\[(.*)\]/);
-    if (actionsMatch) {
-        const actionsRaw = actionsMatch[1];
-        // Clean up <escape> tags and split
-        const actions = actionsRaw
-            .split(',')
-            .map((a: string) => a.replace(/<escape>/g, '').trim());
-        
-        toolResult = { actions };
+    if (actions.length > 0) {
+      toolResult = { actions };
     }
-    
-    // Remove the function call part from the visible text
-    text = rawResponse.replace(/<start_function_call>.*<end_function_call>/g, '').trim();
+    // 清理掉 XML 标签，让 UI 只显示人类能看懂的内容
+    text = responseText.replace(/<start_function_call>[\s\S]*?(?:<end_function_call>|$)/g, '').trim();
   }
 
   return {

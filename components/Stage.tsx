@@ -57,7 +57,7 @@ export const Stage = () => {
           <mesh rotation={[0, 0, 0.6]}>
              <torusGeometry args={[1.5, 0.05, 16, 3]} /> 
              {/* Triangle approx via low poly torus/circle */}
-             <meshStandardMaterial color="#cyan" emissive="#22d3ee" emissiveIntensity={1} />
+             <meshStandardMaterial color="cyan" emissive="#22d3ee" emissiveIntensity={1} />
           </mesh>
         </group>
       </Float>

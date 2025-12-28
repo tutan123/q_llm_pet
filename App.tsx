@@ -6,6 +6,7 @@ import { Stage } from './components/Stage';
 import { SettingsModal } from './components/SettingsModal';
 import { ActionType, AnimationRequest, ChatMessage, LLMSettings } from './types';
 import { sendMessageToLLM } from './services/llmService';
+import { ACTION_DURATIONS } from './constants';
 
 const DEFAULT_SETTINGS: LLMSettings = {
   provider: 'gemini',
@@ -62,7 +63,7 @@ const App = () => {
     const requests: AnimationRequest[] = actions.map(act => ({
       id: Math.random().toString(36).substring(7),
       type: act as ActionType,
-      duration: 3.5 
+      duration: ACTION_DURATIONS[act] || 3.5 
     }));
     setAnimationQueue(prev => [...prev, ...requests]);
   };
