@@ -58,3 +58,8 @@ npm run dev
 
 现在你可以开始与 3D 企鹅互动了！
 
+---
+
+**Write by xu**
+**Last Edited: 2025-12-31**
+
