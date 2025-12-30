@@ -23,11 +23,9 @@ export default class PlayAnimationAction extends Action {
   tick(tick: Tick): number {
     const action = this.properties.action as ActionType;
     const duration = (this.properties.duration as number) * 1000;
-    const setCurrentAction = tick.blackboard?.get('setCurrentAction');
     
-    if (setCurrentAction) {
-      setCurrentAction(action);
-    }
+    // Set output key instead of calling a callback directly
+    tick.blackboard?.set('bt_output_action', action);
 
     if (duration > 0) {
       const startTime = tick.blackboard?.get('startTime', tick.tree?.id, this.id);

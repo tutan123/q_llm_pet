@@ -85,6 +85,16 @@ export default class BaseNode {
     this.exit(tick);
   }
 
+  /**
+   * Helper to force close a node and its children (if any).
+   * Inspired by py_trees terminate/stop logic.
+   */
+  public _closeRecursive(tick: Tick): void {
+    if (tick.blackboard.get('isOpen', tick.tree.id, this.id)) {
+      this._close(tick);
+    }
+  }
+
   public enter(tick: Tick): void {}
   public open(tick: Tick): void {}
   public tick(tick: Tick): number {

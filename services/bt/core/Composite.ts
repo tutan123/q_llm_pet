@@ -1,5 +1,6 @@
 import BaseNode, { NodeOptions } from './BaseNode';
 import { COMPOSITE } from '../constants';
+import Tick from './Tick';
 
 export interface CompositeOptions extends NodeOptions {
   children?: BaseNode[];
@@ -19,6 +20,13 @@ export default class Composite extends BaseNode {
       properties,
     });
     this.children = children.slice(0);
+  }
+
+  public _closeRecursive(tick: Tick): void {
+    for (const child of this.children) {
+      child._closeRecursive(tick);
+    }
+    super._closeRecursive(tick);
   }
 }
 

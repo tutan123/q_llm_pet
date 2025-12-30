@@ -36,14 +36,22 @@ export default class Parallel extends Composite {
     }
     
     if (this.policy === 'SuccessOnAll' && successCount === childCount) {
+      this._closeChildren(tick);
       return SUCCESS;
     }
 
     if (failureCount > 0 && (this.policy === 'SuccessOnAll' || (successCount + failureCount === childCount))) {
+      this._closeChildren(tick);
       return FAILURE;
     }
 
     return RUNNING;
+  }
+
+  private _closeChildren(tick: Tick): void {
+    for (const child of this.children) {
+      child._closeRecursive(tick);
+    }
   }
 }
 

@@ -39,7 +39,7 @@ export default class ExecuteActionSequence extends Action {
     const duration = (ACTION_DURATIONS[action] || 3) * 1000;
 
     if (startTime === 0) {
-      if (setCurrentAction) setCurrentAction(action);
+      blackboard?.set('bt_output_action', action);
       blackboard?.set('sequenceStartTime', now, treeId, this.id);
       return RUNNING;
     }

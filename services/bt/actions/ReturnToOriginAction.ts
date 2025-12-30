@@ -15,9 +15,8 @@ export default class ReturnToOriginAction extends Action {
     
     // 位置是全局同步的
     const currentPos = blackboard?.get('penguinPosition');
-    const setPosition = blackboard?.get('setPenguinPosition');
 
-    if (!currentPos || !setPosition) {
+    if (!currentPos) {
       return FAILURE; // 数据缺失时跳过该分支
     }
 
@@ -30,9 +29,7 @@ export default class ReturnToOriginAction extends Action {
     const distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
 
     if (distance < 0.05) {
-      // 如果已经在原点附近，返回 FAILURE
-      // 这样 Priority Selector 才能继续往下执行其他分支（如点击、LLM 指令）
-      // 只有在真正执行“归位”动作过程中才返回 RUNNING
+      // console.log('BT: ReturnToOriginAction - Already at origin, returning FAILURE');
       return FAILURE;
     }
 
@@ -44,7 +41,8 @@ export default class ReturnToOriginAction extends Action {
       currentPos[2] + dz * speed
     ];
 
-    setPosition(nextPos);
+    // Set output key instead of calling a callback directly
+    blackboard?.set('bt_output_position', nextPos);
     return RUNNING;
   }
 }

@@ -4,7 +4,7 @@ import { OrbitControls, Stars, Environment, ContactShadows, SpotLight } from '@r
 import { Penguin3D } from './components/Penguin3D';
 import { Stage } from './components/Stage';
 import { SettingsModal } from './components/SettingsModal';
-import { ActionType, AnimationRequest, ChatMessage, LLMSettings } from './types';
+import { ActionType, ChatMessage, LLMSettings } from './types';
 import { ACTION_DURATIONS } from './constants';
 import { createPenguinBT, Blackboard } from './services/bt';
 
@@ -23,21 +23,12 @@ const BehaviorController = ({
   setCurrentAction,
   setPenguinPosition,
   penguinPosition,
-  addToQueue,
   setChatHistory,
   chatHistory,
   llmSettings
 }: any) => {
   
-  // Inject React-connected setters into blackboard
-  useEffect(() => {
-    blackboard.set('setCurrentAction', setCurrentAction);
-    blackboard.set('setPenguinPosition', setPenguinPosition);
-    blackboard.set('addToQueue', addToQueue);
-    blackboard.set('setChatHistory', setChatHistory);
-  }, [setCurrentAction, setPenguinPosition, addToQueue, setChatHistory, blackboard]);
-
-  // Update transient data in blackboard
+  // Inject transient data into blackboard
   useEffect(() => {
     blackboard.set('chatHistory', chatHistory);
     blackboard.set('llmSettings', llmSettings);
@@ -48,9 +39,6 @@ const BehaviorController = ({
   useFrame((state) => {
     // 3D 投影映射：将 2D 鼠标坐标转换为 3D 舞台坐标
     if (blackboard.get('isDragging')) {
-        // 使用更精确的投影公式：
-        // 1. 根据相机 Z 轴距离动态调整 X/Y 移动范围
-        // 2. 增加提起的基础高度 (+1.5)
         const factorX = state.camera.position.z * 0.6;
         const factorY = state.camera.position.z * 0.4;
         
@@ -63,6 +51,29 @@ const BehaviorController = ({
     
     // Tick the tree
     bt.tick(null, blackboard);
+
+    // --- BT Driver: Sync Blackboard outputs to React state ---
+    
+    // 1. Handle Action Output
+    const nextAction = blackboard.get('bt_output_action');
+    if (nextAction) {
+      setCurrentAction(nextAction);
+      blackboard.set('bt_output_action', null); // Consume
+    }
+
+    // 2. Handle Position Output
+    const nextPos = blackboard.get('bt_output_position');
+    if (nextPos) {
+      setPenguinPosition(nextPos);
+      blackboard.set('bt_output_position', null); // Consume
+    }
+
+    // 3. Handle Chat Output
+    const nextMsg = blackboard.get('bt_output_chat_msg');
+    if (nextMsg) {
+      setChatHistory((prev: any) => [...prev, nextMsg]);
+      blackboard.set('bt_output_chat_msg', null); // Consume
+    }
   });
 
   return null;
@@ -70,7 +81,6 @@ const BehaviorController = ({
 
 const App = () => {
   // --- State ---
-  const [animationQueue, setAnimationQueue] = useState<AnimationRequest[]>([]);
   const [currentAction, setCurrentAction] = useState<ActionType>('IDLE');
   const [penguinPosition, setPenguinPosition] = useState<[number, number, number]>([0, -1, 0]);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
@@ -87,43 +97,10 @@ const App = () => {
   const bt = useMemo(() => createPenguinBT(), []);
   const blackboard = useMemo(() => new Blackboard(), []);
   
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // --- Animation Loop (Old queue style, still useful for sequencing) ---
-  useEffect(() => {
-    if (currentAction === 'IDLE' && animationQueue.length > 0) {
-      const nextAnim = animationQueue[0];
-      setAnimationQueue((prev) => prev.slice(1));
-      setCurrentAction(nextAnim.type);
-      
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      
-      timeoutRef.current = setTimeout(() => {
-        setCurrentAction('IDLE');
-        timeoutRef.current = null;
-      }, nextAnim.duration * 1000);
-    }
-  }, [currentAction, animationQueue]);
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
-
   // --- Handlers ---
   const saveSettings = (newSettings: LLMSettings) => {
     setLlmSettings(newSettings);
     localStorage.setItem('penguin_llm_settings', JSON.stringify(newSettings));
-  };
-
-  const addToQueue = (actions: string[]) => {
-    const requests: AnimationRequest[] = actions.map(act => ({
-      id: Math.random().toString(36).substring(7),
-      type: act as ActionType,
-      duration: ACTION_DURATIONS[act] || 3.5 
-    }));
-    setAnimationQueue(prev => [...prev, ...requests]);
   };
 
   const handleSendMessage = async () => {
@@ -138,10 +115,8 @@ const App = () => {
     blackboard.set('hasNewInput', true);
     setIsProcessing(true);
     
-    // We don't call the service here anymore, the BT does it.
-    // We'll reset isProcessing via a separate mechanism or just let it pulse
-    // In a real app, the BT node would update 'llm_status' and we'd react to it.
-    setTimeout(() => setIsProcessing(false), 2000); // UI heuristic
+    // UI heuristic to reset processing state
+    setTimeout(() => setIsProcessing(false), 2000); 
   };
 
   return (
@@ -202,7 +177,6 @@ const App = () => {
                 setCurrentAction={setCurrentAction}
                 setPenguinPosition={setPenguinPosition}
                 penguinPosition={penguinPosition}
-                addToQueue={addToQueue}
                 setChatHistory={setChatHistory}
                 chatHistory={chatHistory}
                 llmSettings={llmSettings}

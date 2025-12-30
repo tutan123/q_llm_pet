@@ -15,10 +15,6 @@ export default class FunctionExecNode extends Action {
     const treeId = tick.tree?.id;
     const result = blackboard?.get('lastLLMResult', treeId);
     
-    // Get callbacks from global scope
-    const addToQueue = blackboard?.get('addToQueue');
-    const setChatHistory = blackboard?.get('setChatHistory');
-
     if (!result) {
       // console.log('BT: FunctionExecNode - No result to execute');
       return FAILURE;
@@ -27,9 +23,10 @@ export default class FunctionExecNode extends Action {
     console.log('BT: FunctionExecNode - Executing result:', result);
 
     // Handle text response
-    if (result.text && setChatHistory) {
+    if (result.text) {
       console.log('BT: FunctionExecNode - Setting chat history text');
-      setChatHistory((prev: any) => [...prev, { role: 'model', content: result.text }]);
+      // Set output key instead of calling a callback directly
+      blackboard?.set('bt_output_chat_msg', { role: 'model', content: result.text });
     }
 
     // Handle tool results
@@ -38,13 +35,12 @@ export default class FunctionExecNode extends Action {
       // 将动作存入黑板的待播放队列，让行为树的专门分支去处理，避免被 IDLE 覆盖
       blackboard?.set('pendingActions', result.toolResult.actions, treeId);
       
-      if (setChatHistory) {
-        setChatHistory((prev: any) => [...prev, { 
-          role: 'model', 
-          content: `[Performing: ${result.toolResult.actions.join(', ')}]`,
-          isToolCall: true 
-        }]);
-      }
+      // Also send a text confirmation
+      blackboard?.set('bt_output_chat_msg', { 
+        role: 'model', 
+        content: `[Performing: ${result.toolResult.actions.join(', ')}]`,
+        isToolCall: true 
+      });
     }
 
     // Clear result so it doesn't execute twice
