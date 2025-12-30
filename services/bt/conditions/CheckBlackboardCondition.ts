@@ -20,12 +20,7 @@ export default class CheckBlackboardCondition extends Condition {
     
     const actualValue = blackboard?.get(key, treeId);
     
-    const isMatch = actualValue === value;
-    if (isMatch) {
-      console.log(`BT: Condition [${key} === ${value}] is TRUE`);
-    }
-    
-    return isMatch ? SUCCESS : FAILURE;
+    return actualValue === value ? SUCCESS : FAILURE;
   }
 }
 

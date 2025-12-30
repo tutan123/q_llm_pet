@@ -11,13 +11,15 @@ export default class FollowPointerNode extends Action {
   }
 
   tick(tick: Tick): number {
-    const isDragging = tick.blackboard?.get('isDragging', tick.tree?.id);
-    const pointerPosition = tick.blackboard?.get('pointerPosition', tick.tree?.id); // { x, y, z }
-    const setPenguinPosition = tick.blackboard?.get('setPenguinPosition', tick.tree?.id);
+    const blackboard = tick.blackboard;
+    // 显式从全局作用域获取数据
+    const isDragging = blackboard?.get('isDragging');
+    const pointerPosition = blackboard?.get('pointerPosition'); // { x, y, z }
+    const setPenguinPosition = blackboard?.get('setPenguinPosition');
 
     if (isDragging && pointerPosition && setPenguinPosition) {
-      // Typically lifting up slightly on Y axis
-      setPenguinPosition([pointerPosition.x, pointerPosition.y + 0.5, pointerPosition.z]);
+      // 这里的坐标已经由 App.tsx 处理过投影补偿
+      setPenguinPosition([pointerPosition.x, pointerPosition.y, pointerPosition.z]);
       return RUNNING;
     }
 

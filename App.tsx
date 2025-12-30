@@ -22,6 +22,7 @@ const BehaviorController = ({
   blackboard,
   setCurrentAction,
   setPenguinPosition,
+  penguinPosition,
   addToQueue,
   setChatHistory,
   chatHistory,
@@ -40,23 +41,27 @@ const BehaviorController = ({
   useEffect(() => {
     blackboard.set('chatHistory', chatHistory);
     blackboard.set('llmSettings', llmSettings);
-  }, [chatHistory, llmSettings, blackboard]);
+    // 实时同步当前位置到黑板，供 ReturnToOriginAction 使用
+    blackboard.set('penguinPosition', penguinPosition);
+  }, [chatHistory, llmSettings, penguinPosition, blackboard]);
 
   useFrame((state) => {
     // 3D 投影映射：将 2D 鼠标坐标转换为 3D 舞台坐标
     if (blackboard.get('isDragging')) {
-        // 使用简单的平面投影公式，根据相机距离调整比例
-        // 这样即使在 3D 舞台，小企鹅也能准确跟手
-        const zDepth = 5; // 假设企鹅所在的平面深度
+        // 使用更精确的投影公式：
+        // 1. 根据相机 Z 轴距离动态调整 X/Y 移动范围
+        // 2. 增加提起的基础高度 (+1.5)
+        const factorX = state.camera.position.z * 0.6;
+        const factorY = state.camera.position.z * 0.4;
+        
         blackboard.set('pointerPosition', { 
-            x: state.pointer.x * (state.camera.position.z * 0.5), 
-            y: state.pointer.y * (state.camera.position.z * 0.3) + 1, 
+            x: state.pointer.x * factorX, 
+            y: state.pointer.y * factorY + 1.5, 
             z: 0 
         });
     }
     
     // Tick the tree
-    // console.log('App: Ticking BT...');
     bt.tick(null, blackboard);
   });
 
@@ -176,6 +181,12 @@ const App = () => {
           shadows 
           camera={{ position: [0, 2, 8], fov: 40 }}
           onContextMenu={(e) => e.preventDefault()} // 禁用右键菜单，以便用于拖拽
+          // 全局捕获鼠标抬起事件，防止拖拽过程中鼠标移出企鹅身体导致无法松开
+          onPointerUp={(e) => {
+              if (e.button === 2) {
+                  blackboard.set('isDragging', false);
+              }
+          }}
         >
           <color attach="background" args={['#050505']} />
           <Stars radius={100} depth={50} count={1000} factor={4} saturation={0} fade speed={0.5} />
@@ -190,6 +201,7 @@ const App = () => {
                 blackboard={blackboard} 
                 setCurrentAction={setCurrentAction}
                 setPenguinPosition={setPenguinPosition}
+                penguinPosition={penguinPosition}
                 addToQueue={addToQueue}
                 setChatHistory={setChatHistory}
                 chatHistory={chatHistory}
@@ -207,6 +219,7 @@ const App = () => {
                       }
                   }}
                   onPointerUp={(e) => {
+                      // 保留这里的逻辑以防万一，但主要依赖 Canvas 的全局监听
                       if (e.button === 2) {
                           blackboard.set('isDragging', false);
                       }

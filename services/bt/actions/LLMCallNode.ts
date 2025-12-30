@@ -70,10 +70,8 @@ export default class LLMCallNode extends Action {
 
     if (status === 'success') {
       const response = blackboard?.get('llm_response', treeId, this.id);
-      console.log('BT: LLMCallNode reporting SUCCESS. Result:', response);
       
       if (!response) {
-        console.error('BT: LLMCallNode - Status is success but response is null!');
         blackboard?.set('llm_status', 'idle', treeId, this.id);
         return FAILURE;
       }

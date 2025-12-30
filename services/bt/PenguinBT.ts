@@ -1,9 +1,11 @@
 import BehaviorTree from './core/BehaviorTree';
 import Priority from './composites/Priority';
 import Sequence from './composites/Sequence';
+import MemSequence from './composites/MemSequence';
 import Parallel from './composites/Parallel';
 import PlayAnimationAction from './actions/PlayAnimationAction';
 import FollowPointerNode from './actions/FollowPointerNode';
+import ReturnToOriginAction from './actions/ReturnToOriginAction';
 import LLMCallNode from './actions/LLMCallNode';
 import FunctionExecNode from './actions/FunctionExecNode';
 import ExecuteActionSequence from './actions/ExecuteActionSequence';
@@ -22,22 +24,19 @@ export function createPenguinBT(): BehaviorTree {
       new Sequence({
         children: [
           new CheckBlackboardCondition({ key: 'isDragging', value: true, scope: 'global' }),
-          new Parallel({
-            policy: 'SuccessOnAll',
-            children: [
-              new PlayAnimationAction({ action: 'FLY' }), // 提起时播放飞行/挣扎动作
-              new FollowPointerNode() // 位置跟随鼠标
-            ]
-          })
+          new FollowPointerNode() // 仅位置跟随，不再强加 FLY 动作
         ]
       }),
 
-      // 2. 点击互动分支
-      new Sequence({
+      // 2. 自动回归原点分支
+      // 当不再拖拽，且位置不在原点时触发
+      new ReturnToOriginAction(),
+
+      // 3. 点击互动分支
+      new MemSequence({
         children: [
           new CheckBlackboardCondition({ key: 'isClicked', value: true, scope: 'global' }),
-          new PlayAnimationAction({ action: 'DAZZLE' }),
-          // 点击逻辑完成后重置
+          new PlayAnimationAction({ action: 'DAZZLE', duration: 2 }), // 播放 2 秒
           new PlayAnimationAction({ action: 'IDLE' }) 
         ]
       }),
@@ -47,7 +46,7 @@ export function createPenguinBT(): BehaviorTree {
       new ExecuteActionSequence(),
 
       // 4. 文本指令输入分支 (LLM 决策)
-      new Sequence({
+      new MemSequence({
         children: [
           new CheckBlackboardCondition({ key: 'hasNewInput', value: true, scope: 'global' }),
           new Retry({
