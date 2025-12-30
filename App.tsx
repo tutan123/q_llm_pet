@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
+import React, { useState, useEffect, useMemo, useRef, Suspense } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars, Environment, ContactShadows, SpotLight } from '@react-three/drei';
 import { Penguin3D } from './components/Penguin3D';
 import { Stage } from './components/Stage';
 import { SettingsModal } from './components/SettingsModal';
 import { ActionType, AnimationRequest, ChatMessage, LLMSettings } from './types';
-import { sendMessageToLLM } from './services/llmService';
 import { ACTION_DURATIONS } from './constants';
+import { createPenguinBT, Blackboard } from './services/bt';
 
 const DEFAULT_SETTINGS: LLMSettings = {
   provider: 'gemini',
@@ -15,10 +15,59 @@ const DEFAULT_SETTINGS: LLMSettings = {
   modelName: 'llama3'
 };
 
+// --- BT Controller Component ---
+// This handles the tree ticking within the R3F loop
+const BehaviorController = ({ 
+  bt, 
+  blackboard,
+  setCurrentAction,
+  setPenguinPosition,
+  addToQueue,
+  setChatHistory,
+  chatHistory,
+  llmSettings
+}: any) => {
+  
+  // Inject React-connected setters into blackboard
+  useEffect(() => {
+    blackboard.set('setCurrentAction', setCurrentAction);
+    blackboard.set('setPenguinPosition', setPenguinPosition);
+    blackboard.set('addToQueue', addToQueue);
+    blackboard.set('setChatHistory', setChatHistory);
+  }, [setCurrentAction, setPenguinPosition, addToQueue, setChatHistory, blackboard]);
+
+  // Update transient data in blackboard
+  useEffect(() => {
+    blackboard.set('chatHistory', chatHistory);
+    blackboard.set('llmSettings', llmSettings);
+  }, [chatHistory, llmSettings, blackboard]);
+
+  useFrame((state) => {
+    // 3D 投影映射：将 2D 鼠标坐标转换为 3D 舞台坐标
+    if (blackboard.get('isDragging')) {
+        // 使用简单的平面投影公式，根据相机距离调整比例
+        // 这样即使在 3D 舞台，小企鹅也能准确跟手
+        const zDepth = 5; // 假设企鹅所在的平面深度
+        blackboard.set('pointerPosition', { 
+            x: state.pointer.x * (state.camera.position.z * 0.5), 
+            y: state.pointer.y * (state.camera.position.z * 0.3) + 1, 
+            z: 0 
+        });
+    }
+    
+    // Tick the tree
+    // console.log('App: Ticking BT...');
+    bt.tick(null, blackboard);
+  });
+
+  return null;
+};
+
 const App = () => {
   // --- State ---
   const [animationQueue, setAnimationQueue] = useState<AnimationRequest[]>([]);
   const [currentAction, setCurrentAction] = useState<ActionType>('IDLE');
+  const [penguinPosition, setPenguinPosition] = useState<[number, number, number]>([0, -1, 0]);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -28,10 +77,14 @@ const App = () => {
     const saved = localStorage.getItem('penguin_llm_settings');
     return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
   });
+
+  // --- Behavior Tree ---
+  const bt = useMemo(() => createPenguinBT(), []);
+  const blackboard = useMemo(() => new Blackboard(), []);
   
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // --- Animation Loop ---
+  // --- Animation Loop (Old queue style, still useful for sequencing) ---
   useEffect(() => {
     if (currentAction === 'IDLE' && animationQueue.length > 0) {
       const nextAnim = animationQueue[0];
@@ -74,36 +127,16 @@ const App = () => {
     const userMsg: ChatMessage = { role: 'user', content: inputText };
     setChatHistory(prev => [...prev, userMsg]);
     setInputText('');
+    
+    // Update Blackboard to trigger BT Branch
+    blackboard.set('lastUserInput', userMsg.content);
+    blackboard.set('hasNewInput', true);
     setIsProcessing(true);
-
-    try {
-      // Use the unified LLM service that respects settings
-      const response = await sendMessageToLLM(chatHistory, userMsg.content, llmSettings);
-
-      if (response.text) {
-        setChatHistory(prev => [...prev, { role: 'model', content: response.text }]);
-      }
-
-      if (response.toolResult && response.toolResult.actions) {
-         console.log("TOOL CALL RECEIVED:", response.toolResult.actions);
-         addToQueue(response.toolResult.actions);
-         setChatHistory(prev => [...prev, { 
-             role: 'model', 
-             content: `[Performing: ${response.toolResult.actions.join(', ')}]`,
-             isToolCall: true 
-         }]);
-      }
-
-    } catch (error: any) {
-      console.error("API Error:", error);
-      let errorMsg = "Oops, I had a brain freeze.";
-      if (error.message.includes("Custom LLM Error")) {
-          errorMsg = `Connection Error: Check your URL/API Key.`;
-      }
-      setChatHistory(prev => [...prev, { role: 'model', content: errorMsg }]);
-    } finally {
-      setIsProcessing(false);
-    }
+    
+    // We don't call the service here anymore, the BT does it.
+    // We'll reset isProcessing via a separate mechanism or just let it pulse
+    // In a real app, the BT node would update 'llm_status' and we'd react to it.
+    setTimeout(() => setIsProcessing(false), 2000); // UI heuristic
   };
 
   return (
@@ -120,20 +153,14 @@ const App = () => {
       <div className="flex-1 relative h-full">
         <div className="absolute top-4 left-4 z-10 pointer-events-none select-none">
           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-purple-500 drop-shadow-lg filter blur-[0.5px]">
-            Q-Penguin Live
+            Q-Penguin BT
           </h1>
           <div className="flex items-center gap-2 mt-2">
              <div className={`w-3 h-3 rounded-full ${currentAction === 'IDLE' ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`}></div>
              <span className="text-sm font-mono opacity-80 text-amber-100">Action: {currentAction}</span>
           </div>
-          {animationQueue.length > 0 && (
-              <div className="mt-2 text-xs text-slate-400 font-mono">
-                  Next: {animationQueue.map(a => a.type).join(' -> ')}
-              </div>
-          )}
         </div>
 
-        {/* Settings Trigger */}
         <button 
           onClick={() => setIsSettingsOpen(true)}
           className="absolute top-4 right-4 z-20 p-2 bg-slate-800/50 hover:bg-slate-700 backdrop-blur rounded-full transition-all text-slate-300 hover:text-white"
@@ -145,58 +172,68 @@ const App = () => {
           </svg>
         </button>
 
-        <Canvas shadows camera={{ position: [0, 2, 8], fov: 40 }}>
+        <Canvas 
+          shadows 
+          camera={{ position: [0, 2, 8], fov: 40 }}
+          onContextMenu={(e) => e.preventDefault()} // 禁用右键菜单，以便用于拖拽
+        >
           <color attach="background" args={['#050505']} />
           <Stars radius={100} depth={50} count={1000} factor={4} saturation={0} fade speed={0.5} />
           
           <ambientLight intensity={0.5} color="#404060" />
-
-          <spotLight 
-            position={[5, 8, 5]} 
-            angle={0.4} 
-            penumbra={0.3} 
-            intensity={1.5} 
-            castShadow 
-            color="#fff" 
-            shadow-bias={-0.0001}
-          />
-
-          <spotLight 
-            position={[-5, 5, -5]} 
-            angle={0.5} 
-            penumbra={1} 
-            intensity={4} 
-            color="#3b82f6" 
-          />
-          
-          <SpotLight
-            distance={20}
-            attenuation={5}
-            anglePower={5}
-            position={[0, 8, 0]} 
-            target-position={[0, 0, 0]}
-            color="#fffae0" 
-            opacity={0.3}
-            angle={0.3}
-          />
+          <SpotLight distance={20} attenuation={5} anglePower={5} position={[0, 8, 0]} target-position={[0, 0, 0]} color="#fffae0" opacity={0.3} angle={0.3} />
           
           <Suspense fallback={null}>
             <Environment preset="city" blur={0.8} />
-
+            <BehaviorController 
+                bt={bt} 
+                blackboard={blackboard} 
+                setCurrentAction={setCurrentAction}
+                setPenguinPosition={setPenguinPosition}
+                addToQueue={addToQueue}
+                setChatHistory={setChatHistory}
+                chatHistory={chatHistory}
+                llmSettings={llmSettings}
+            />
             <group position={[0, -1, 0]}>
                <Stage />
-               <Penguin3D currentAction={currentAction} animationProgress={0} />
+               <Penguin3D 
+                  currentAction={currentAction} 
+                  position={penguinPosition}
+                  onPointerDown={(e) => {
+                      // 0: 左键, 1: 中键, 2: 右键
+                      if (e.button === 2) {
+                          blackboard.set('isDragging', true);
+                      }
+                  }}
+                  onPointerUp={(e) => {
+                      if (e.button === 2) {
+                          blackboard.set('isDragging', false);
+                      }
+                  }}
+                  onClick={(e) => {
+                      // 左键点击触发互动
+                      if (e.button === 0) {
+                          blackboard.set('isClicked', true);
+                          setTimeout(() => blackboard.set('isClicked', false), 500);
+                      }
+                  }}
+               />
                <ContactShadows opacity={0.7} scale={10} blur={2} far={4} resolution={256} color="#000000" />
             </group>
           </Suspense>
           
           <OrbitControls 
-            minPolarAngle={Math.PI / 4} 
-            maxPolarAngle={Math.PI / 2.1} 
-            enableZoom={true} 
             enablePan={false}
             maxDistance={12}
             minDistance={4}
+            // 修正后的鼠标按键绑定：
+            // 0: 左键 (ROTATE), 1: 中键/滚轮 (ZOOM), 2: 右键 (PAN - 我们将其禁用)
+            mouseButtons={{
+                LEFT: 0,   // Rotate
+                MIDDLE: 1, // Zoom (Dolly)
+                RIGHT: -1  // None
+            }}
           />
         </Canvas>
       </div>
@@ -206,15 +243,11 @@ const App = () => {
         <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col">
           {chatHistory.length === 0 && (
              <div className="text-center text-slate-500 mt-10">
-                <p className="mb-2 text-amber-400 font-bold">✨ Showtime!</p>
-                <div className="text-xs font-mono text-slate-600 mb-4 bg-slate-800 p-2 rounded">
-                  Running on: <span className="text-blue-400">{llmSettings.provider === 'gemini' ? 'Gemini' : `Custom (${llmSettings.modelName})`}</span>
-                </div>
-                <p className="text-sm">Commands to try:</p>
+                <p className="mb-2 text-amber-400 font-bold">🐧 BT Powered Avatar</p>
+                <p className="text-xs mb-4">Try dragging me or clicking me!</p>
                 <ul className="text-xs mt-2 space-y-1 text-slate-400">
                     <li>"Fly around the stage!"</li>
                     <li>"Dazzle the audience."</li>
-                    <li>"Slide into the spotlight."</li>
                 </ul>
              </div>
           )}
@@ -233,20 +266,8 @@ const App = () => {
             </div>
           ))}
           {isProcessing && (
-              <div className="self-start text-slate-400 text-xs animate-pulse">Thinking...</div>
+              <div className="self-start text-slate-400 text-xs animate-pulse">BT Thinking...</div>
           )}
-        </div>
-
-        <div className="p-2 border-t border-slate-700 grid grid-cols-4 gap-2">
-            {['FLY', 'RUN_ACROSS', 'SLIDE', 'DAZZLE'].map(action => (
-                <button 
-                    key={action}
-                    onClick={() => addToQueue([action])}
-                    className="bg-slate-800 hover:bg-slate-700 text-[10px] text-amber-200 py-2 rounded transition-colors border border-slate-700"
-                >
-                    {action}
-                </button>
-            ))}
         </div>
 
         <div className="p-4 border-t border-slate-700 bg-slate-900">

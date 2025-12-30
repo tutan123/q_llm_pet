@@ -17,4 +17,8 @@ export { default as Retry } from './decorators/Retry';
 
 export { default as LLMCallNode } from './actions/LLMCallNode';
 export { default as FunctionExecNode } from './actions/FunctionExecNode';
+export { default as PlayAnimationAction } from './actions/PlayAnimationAction';
+export { default as FollowPointerNode } from './actions/FollowPointerNode';
+export { default as CheckBlackboardCondition } from './conditions/CheckBlackboardCondition';
 
+export * from './PenguinBT';
