@@ -54,6 +54,7 @@ graph TD
     Composite --> Priority[Priority]
     Composite --> Parallel[Parallel]
     Composite --> MemSeq[MemSequence]
+    Composite --> ReactiveSeq[ReactiveSequence]
     
     Decorator --> Retry[Retry]
     Decorator --> Inverter[Inverter]
@@ -68,7 +69,7 @@ graph TD
     class BaseNode base
     class Action,Wait,LLMCall,PlayAnim action
     class Condition,CheckBB condition
-    class Composite,Sequence,Priority,Parallel,MemSeq composite
+    class Composite,Sequence,Priority,Parallel,MemSeq,ReactiveSeq composite
     class Decorator,Retry,Inverter,Timeout decorator
 ```
 
@@ -772,6 +773,35 @@ tick(tick: Tick) {
 - 执行必须按顺序完成且不能被中断的长流程
 - 确保动作序列的完整性
 
+#### 4.3.5 `ReactiveSequence` (反应式顺序节点)
+
+**语义**: 持续监控前提条件的顺序节点。
+
+**执行逻辑**:
+每一帧都从第一个子节点开始执行。只有前面的子节点全部返回 `SUCCESS`，才会执行后面的子节点。
+
+**对比图**:
+
+```mermaid
+sequenceDiagram
+    participant BT as ReactiveSequence
+    participant C1 as Condition 1
+    participant A1 as Action 1
+    
+    Note over BT,A1: Tick 1
+    BT->>C1: tick() -> SUCCESS
+    BT->>A1: tick() -> RUNNING
+    
+    Note over BT,A1: Tick 2 (Condition changes!)
+    BT->>C1: tick() -> FAILURE
+    Note right of BT: Sequence Aborted!
+    Note right of BT: Action 1 Interrupted
+```
+
+**适用场景**:
+- 保护性行为（如：边走路边检查是否有障碍物）
+- 关键状态维护（如：对话过程中持续检测用户是否离开）
+
 ---
 
 ## 5. 高级控制流：IfThenElse
@@ -867,18 +897,20 @@ tick(tick: Tick): number {
 
 ### 6.3 对比表格
 
-| 特性 | 反应式 (Sequence) | 记忆式 (MemSequence) |
-|------|------------------|---------------------|
-| 每轮 tick 起点 | 第一个子节点 | 上次运行的子节点 |
-| 可中断性 | 高 | 低 |
-| 性能 | 较低 | 较高 |
-| 适用场景 | 紧急响应、条件检查 | 长流程、动作序列 |
-| 副作用风险 | 高（需防护） | 低 |
+| 特性 | 反应式 (Sequence) | 反应式增强 (ReactiveSequence) | 记忆式 (MemSequence) |
+|------|------------------|---------------------|---------------------|
+| 每轮 tick 起点 | 第一个子节点 | 第一个子节点 | 上次运行的子节点 |
+| 条件监控 | 有限 | **极高（全量监控）** | 低 |
+| 可中断性 | 高 | **极高** | 低 |
+| 性能 | 较低 | 较低 | 较高 |
+| 适用场景 | 基础响应 | 关键安全性检查 | 长流程、动作序列 |
+| 副作用风险 | 高 | 高（需严格幂等） | 低 |
 
-### 6.4 选择建议
+### 6.4 为什么需要 ReactiveSequence？
 
-- **使用反应式**: 当你需要快速响应环境变化时（如：检测到危险立即逃跑）
-- **使用记忆式**: 当你需要保证动作序列完整性时（如：开门 -> 进屋 -> 关门）
+传统的 `Sequence` 每次从第一个子节点开始 `tick`。但对于**正在运行中 (RUNNING)** 的子节点，它通常会跳过前面的子节点。
+
+`ReactiveSequence` 的不同之处在于：**即使子节点处于 RUNNING 状态，它也会在执行该节点前，强制重新执行一遍它前面所有的子节点。** 这确保了执行长任务的前提条件在每一帧都是有效的。
 
 ---
 

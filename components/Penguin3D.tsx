@@ -1,10 +1,11 @@
 import React, { useRef, useEffect } from 'react';
 import { useFrame, ThreeEvent } from '@react-three/fiber';
 import { Group, Mesh, Vector3 } from 'three';
-import { ActionType } from '../types';
+import { ActionType, ExpressionType } from '../types';
 
 interface PenguinProps {
   currentAction: ActionType;
+  currentExpression?: ExpressionType;
   position?: [number, number, number];
   onPointerDown?: (e: ThreeEvent<PointerEvent>) => void;
   onPointerUp?: (e: ThreeEvent<PointerEvent>) => void;
@@ -14,6 +15,7 @@ interface PenguinProps {
 
 export const Penguin3D: React.FC<PenguinProps> = ({ 
   currentAction, 
+  currentExpression = 'NEUTRAL',
   position = [0, -1, 0],
   onPointerDown,
   onPointerUp,
@@ -25,6 +27,11 @@ export const Penguin3D: React.FC<PenguinProps> = ({
   const headRef = useRef<Group>(null);
   const leftWingRef = useRef<Mesh>(null);
   const rightWingRef = useRef<Mesh>(null);
+  const leftEyeRef = useRef<Mesh>(null);
+  const rightEyeRef = useRef<Mesh>(null);
+  const beakRef = useRef<Mesh>(null);
+  const blushGroupRef = useRef<Group>(null);
+  const heartRef = useRef<Group>(null);
 
   // Global time for continuous animations (breathing)
   const globalTime = useRef(0);
@@ -389,6 +396,100 @@ export const Penguin3D: React.FC<PenguinProps> = ({
     if (head) {
         head.rotation.y += (headRotY - head.rotation.y) * lerpSpeed;
     }
+
+    // --- Expression Logic ---
+    const leftEye = leftEyeRef.current;
+    const rightEye = rightEyeRef.current;
+    const beak = beakRef.current;
+    const blushGroup = blushGroupRef.current;
+    const heartGroup = heartRef.current;
+
+    if (leftEye && rightEye && beak && blushGroup && heartGroup) {
+      let eyeScaleY = 1;
+      let eyeScaleX = 1;
+      let eyeRotZ = 0;
+      let blushOpacity = 0.4;
+      let beakRotX = 1.57; // Default rotation for beak (cone)
+      let heartScale = 0;
+
+      // Auto-blink logic
+      const isBlinking = (t % 4) < 0.15;
+      
+      switch (currentExpression) {
+        case 'HAPPY':
+          eyeScaleY = 0.7;
+          eyeScaleX = 1.2;
+          blushOpacity = 0.8;
+          break;
+        case 'SAD':
+          eyeScaleY = 1.2;
+          eyeScaleX = 0.8;
+          eyeRotZ = 0.2;
+          blushOpacity = 0.1;
+          break;
+        case 'ANGRY':
+          eyeScaleY = 0.5;
+          eyeScaleX = 1.2;
+          eyeRotZ = -0.3;
+          blushOpacity = 0;
+          break;
+        case 'SURPRISED':
+          eyeScaleY = 1.5;
+          eyeScaleX = 1.5;
+          beakRotX = 1.2; // Open beak
+          blushOpacity = 0.6;
+          break;
+        case 'EXCITED':
+          eyeScaleY = 1.3 + Math.sin(t * 10) * 0.2;
+          eyeScaleX = 1.3 + Math.cos(t * 10) * 0.2;
+          blushOpacity = 1.0;
+          break;
+        case 'SLEEPY':
+          eyeScaleY = 0.1;
+          blushOpacity = 0.2;
+          break;
+        case 'LOVING':
+          eyeScaleY = 1.1;
+          blushOpacity = 1.0;
+          heartScale = 1.0 + Math.sin(t * 5) * 0.2;
+          break;
+        case 'CONFUSED':
+          eyeScaleY = 1.0;
+          eyeScaleX = 1.0;
+          // Confused head tilt
+          head.rotation.z = Math.sin(t * 2) * 0.3;
+          break;
+        case 'BLINK':
+          eyeScaleY = 0.1;
+          break;
+        default: // NEUTRAL
+          if (isBlinking) eyeScaleY = 0.1;
+          break;
+      }
+
+      // Smoothly apply expression values
+      leftEye.scale.y += (eyeScaleY - leftEye.scale.y) * 0.2;
+      leftEye.scale.x += (eyeScaleX - leftEye.scale.x) * 0.2;
+      leftEye.rotation.z += (eyeRotZ - leftEye.rotation.z) * 0.2;
+
+      rightEye.scale.y += (eyeScaleY - rightEye.scale.y) * 0.2;
+      rightEye.scale.x += (eyeScaleX - rightEye.scale.x) * 0.2;
+      rightEye.rotation.z += (-eyeRotZ - rightEye.rotation.z) * 0.2;
+
+      beak.rotation.x += (beakRotX - beak.rotation.x) * 0.2;
+
+      blushGroup.children.forEach((child: any) => {
+        if (child.material) {
+          child.material.opacity += (blushOpacity - child.material.opacity) * 0.1;
+        }
+      });
+
+      heartGroup.scale.setScalar(heartGroup.scale.x + (heartScale - heartGroup.scale.x) * 0.2);
+      if (heartScale > 0.1) {
+        heartGroup.position.y = 2.2 + Math.sin(t * 3) * 0.2;
+        heartGroup.rotation.y = Math.sin(t * 2) * 0.5;
+      }
+    }
   });
 
   return (
@@ -400,6 +501,22 @@ export const Penguin3D: React.FC<PenguinProps> = ({
       onPointerMove={onPointerMove}
       onClick={onClick}
     >
+      {/* --- HEART (for LOVING expression) --- */}
+      <group ref={heartRef} scale={[0, 0, 0]} position={[0, 2.2, 0.2]}>
+        <mesh position={[0, 0, 0]}>
+          <sphereGeometry args={[0.15, 16, 16]} />
+          <meshBasicMaterial color="#ff4d4d" />
+        </mesh>
+        <mesh position={[-0.1, 0.1, 0]}>
+          <sphereGeometry args={[0.15, 16, 16]} />
+          <meshBasicMaterial color="#ff4d4d" />
+        </mesh>
+        <mesh position={[0.1, 0.1, 0]}>
+          <sphereGeometry args={[0.15, 16, 16]} />
+          <meshBasicMaterial color="#ff4d4d" />
+        </mesh>
+      </group>
+
       {/* --- BODY --- */}
       <mesh ref={bodyRef} position={[0, 0.8, 0]} castShadow>
         <capsuleGeometry args={[0.7, 1.2, 8, 32]} />
@@ -419,20 +536,23 @@ export const Penguin3D: React.FC<PenguinProps> = ({
 
       {/* --- HEAD --- */}
       <group ref={headRef} position={[0, 1.6, 0]}>
-         <mesh position={[0, -0.1, 0.6]} rotation={[1.57, 0, 0]} castShadow>
+         {/* BEAK */}
+         <mesh ref={beakRef} position={[0, -0.1, 0.6]} rotation={[1.57, 0, 0]} castShadow>
             <coneGeometry args={[0.15, 0.4, 32]} />
             <meshStandardMaterial color="#f59e0b" roughness={0.3} />
          </mesh>
 
-         <mesh position={[-0.25, 0.1, 0.52]}>
+         {/* EYES */}
+         <mesh ref={leftEyeRef} position={[-0.25, 0.1, 0.52]}>
             <sphereGeometry args={[0.09, 16, 16]} />
             <meshStandardMaterial color="#000" roughness={0.1} metalness={0.5} />
          </mesh>
-         <mesh position={[0.25, 0.1, 0.52]}>
+         <mesh ref={rightEyeRef} position={[0.25, 0.1, 0.52]}>
             <sphereGeometry args={[0.09, 16, 16]} />
             <meshStandardMaterial color="#000" roughness={0.1} metalness={0.5} />
          </mesh>
           
+         {/* EYE HIGHLIGHTS */}
          <mesh position={[-0.28, 0.14, 0.58]}>
             <sphereGeometry args={[0.025, 8, 8]} />
             <meshBasicMaterial color="white" />
@@ -442,14 +562,17 @@ export const Penguin3D: React.FC<PenguinProps> = ({
             <meshBasicMaterial color="white" />
          </mesh>
 
-         <mesh position={[-0.35, -0.05, 0.45]} rotation={[0, 0.5, 0]}>
-            <circleGeometry args={[0.08, 16]} />
-            <meshBasicMaterial color="#f472b6" opacity={0.6} transparent depthWrite={false} />
-         </mesh>
-         <mesh position={[0.35, -0.05, 0.45]} rotation={[0, -0.5, 0]}>
-            <circleGeometry args={[0.08, 16]} />
-            <meshBasicMaterial color="#f472b6" opacity={0.6} transparent depthWrite={false} />
-         </mesh>
+         {/* BLUSH */}
+         <group ref={blushGroupRef}>
+           <mesh position={[-0.35, -0.05, 0.45]} rotation={[0, 0.5, 0]}>
+              <circleGeometry args={[0.08, 16]} />
+              <meshBasicMaterial color="#f472b6" opacity={0.4} transparent depthWrite={false} />
+           </mesh>
+           <mesh position={[0.35, -0.05, 0.45]} rotation={[0, -0.5, 0]}>
+              <circleGeometry args={[0.08, 16]} />
+              <meshBasicMaterial color="#f472b6" opacity={0.4} transparent depthWrite={false} />
+           </mesh>
+         </group>
       </group>
 
       {/* --- ACCESSORIES --- */}

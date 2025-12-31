@@ -10,10 +10,10 @@ export const sendToFunctionGemma = async (
   newMessage: string,
   settings: LLMSettings
 ) => {
-  // 1. 构造紧凑的工具声明（模仿 test_api_pet.py，使用 JSON.stringify 节省 Token）
-  const TOOL_DECLARATION = `<start_function_declaration>declaration:animate_avatar{description:<escape>Controls the 3D penguin avatar to perform a sequence of actions on stage.<escape>,parameters:{properties:{actions:{description:<escape>An ordered list of actions for the avatar to perform.<escape>,items:{enum:${JSON.stringify(AVAILABLE_ACTIONS)},type:<escape>STRING<escape>},type:<escape>ARRAY<escape>}},required:[<escape>actions<escape>],type:<escape>OBJECT<escape>}}<end_function_declaration>`;
+  // 1. 构造紧凑的工具声明（包含表情支持）
+  const TOOL_DECLARATION = `<start_function_declaration>declaration:animate_avatar{description:<escape>Controls the avatar to perform actions and an optional facial expression.<escape>,parameters:{properties:{actions:{description:<escape>Ordered list of actions.<escape>,items:{enum:${JSON.stringify(AVAILABLE_ACTIONS)},type:<escape>STRING<escape>},type:<escape>ARRAY<escape>},emotion:{description:<escape>Optional facial expression.<escape>,enum:[<escape>HAPPY<escape>,<escape>SAD<escape>,<escape>ANGRY<escape>,<escape>SURPRISED<escape>,<escape>EXCITED<escape>,<escape>LOVING<escape>,<escape>CONFUSED<escape>],type:<escape>STRING<escape>}},required:[<escape>actions<escape>],type:<escape>OBJECT<escape>}}<end_function_declaration>`;
 
-  const systemPrompt = `You are a model that can do function calling with the following functions\n${TOOL_DECLARATION}\n\n${SYSTEM_INSTRUCTION}`;
+  const systemPrompt = `You are a model that can do function calling with the following functions\n${TOOL_DECLARATION}\n\n${SYSTEM_INSTRUCTION}\n\nIMPORTANT: When appropriate, include an "emotion" parameter to reflect the penguin's feelings.`;
 
   // 2. Make the API request
   const response = await fetch(`${settings.baseUrl.replace(/\/completions$/, '')}/chat/completions`, {
@@ -48,18 +48,30 @@ export const sendToFunctionGemma = async (
   let text = responseText;
   let toolResult: any = null;
 
-  // 3. 鲁棒的解析逻辑：从文本中提取 call:animate_avatar
-  const callMatch = responseText.match(/call:animate_avatar\{actions:\[(.*?)(?:\]|$)/);
+  // 3. 增强的解析逻辑：从文本中提取 call:animate_avatar 及其参数
+  const callMatch = responseText.match(/call:animate_avatar\{(.*?)\}/);
   if (callMatch) {
-    const actionsRaw = callMatch[1];
-    const actions = actionsRaw
-        .split(',')
-        .map((a: string) => a.replace(/<escape>/g, '').replace(/['"]/g, '').trim())
-        .filter((a: string) => a.length > 0);
+    const paramsRaw = callMatch[1];
     
-    if (actions.length > 0) {
-      toolResult = { actions };
+    // 提取 actions
+    const actionsMatch = paramsRaw.match(/actions:\[(.*?)\]/);
+    if (actionsMatch) {
+      const actions = actionsMatch[1]
+          .split(',')
+          .map((a: string) => a.replace(/<escape>/g, '').replace(/['"]/g, '').trim())
+          .filter((a: string) => a.length > 0);
+      
+      if (actions.length > 0) {
+        toolResult = { actions };
+      }
     }
+
+    // 提取 emotion
+    const emotionMatch = paramsRaw.match(/emotion:(?:<escape>)?(\w+)(?:<escape>)?/);
+    if (emotionMatch && toolResult) {
+      toolResult.emotion = emotionMatch[1].toUpperCase();
+    }
+
     // 清理掉 XML 标签，让 UI 只显示人类能看懂的内容
     text = responseText.replace(/<start_function_call>[\s\S]*?(?:<end_function_call>|$)/g, '').trim();
   }

@@ -4,6 +4,7 @@ import Sequence from './composites/Sequence';
 import MemSequence from './composites/MemSequence';
 import Parallel from './composites/Parallel';
 import PlayAnimationAction from './actions/PlayAnimationAction';
+import PlayExpressionAction from './actions/PlayExpressionAction';
 import FollowPointerNode from './actions/FollowPointerNode';
 import ReturnToOriginAction from './actions/ReturnToOriginAction';
 import LLMCallNode from './actions/LLMCallNode';
@@ -62,8 +63,18 @@ export function createPenguinBT(): BehaviorTree {
       }),
 
       // 3. 处理 pendingActions 序列（LLM 命令执行）
-      // 这个分支会持续运行直到所有动作播完，确保不被 IDLE 打断
-      new ExecuteActionSequence({ title: 'Execute LLM Action Chain' }),
+      // 使用 Parallel 让表情和动作序列并行执行
+      new Parallel({
+        title: 'Execute LLM Action Chain',
+        policy: 'SuccessOnAll',
+        children: [
+          new ExecuteActionSequence(),
+          new PlayExpressionAction({ 
+            title: 'Apply LLM Emotion',
+            expressionKey: 'pendingEmotion' 
+          })
+        ]
+      }),
 
       // 4. 文本指令输入分支 (LLM 决策)
       new MemSequence({

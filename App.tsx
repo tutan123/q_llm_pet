@@ -5,7 +5,7 @@ import { Penguin3D } from './components/Penguin3D';
 import { Stage } from './components/Stage';
 import { SettingsModal } from './components/SettingsModal';
 import { BTVisualizer } from './components/BTVisualizer';
-import { ActionType, ChatMessage, LLMSettings } from './types';
+import { ActionType, ChatMessage, LLMSettings, ExpressionType } from './types';
 import { ACTION_DURATIONS } from './constants';
 import { createPenguinBT, Blackboard } from './services/bt';
 
@@ -22,6 +22,7 @@ const BehaviorController = ({
   bt, 
   blackboard,
   setCurrentAction,
+  setCurrentExpression,
   setPenguinPosition,
   penguinPosition,
   setChatHistory,
@@ -55,21 +56,28 @@ const BehaviorController = ({
 
     // --- BT Driver: Sync Blackboard outputs to React state ---
     
-    // 1. Handle Action Output
+    // 1. Handle Action Output (Body Animation)
     const nextAction = blackboard.get('bt_output_action');
     if (nextAction) {
       setCurrentAction(nextAction);
       blackboard.set('bt_output_action', null); // Consume
     }
 
-    // 2. Handle Position Output
+    // 2. Handle Expression Output (Facial Expression)
+    const nextExpression = blackboard.get('bt_output_expression');
+    if (nextExpression) {
+      setCurrentExpression(nextExpression);
+      blackboard.set('bt_output_expression', null); // Consume
+    }
+
+    // 3. Handle Position Output
     const nextPos = blackboard.get('bt_output_position');
     if (nextPos) {
       setPenguinPosition(nextPos);
       blackboard.set('bt_output_position', null); // Consume
     }
 
-    // 3. Handle Chat Output
+    // 4. Handle Chat Output
     const nextMsg = blackboard.get('bt_output_chat_msg');
     if (nextMsg) {
       setChatHistory((prev: any) => [...prev, nextMsg]);
@@ -83,6 +91,7 @@ const BehaviorController = ({
 const App = () => {
   // --- State ---
   const [currentAction, setCurrentAction] = useState<ActionType>('IDLE');
+  const [currentExpression, setCurrentExpression] = useState<ExpressionType>('NEUTRAL');
   const [penguinPosition, setPenguinPosition] = useState<[number, number, number]>([0, -1, 0]);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
@@ -176,6 +185,7 @@ const App = () => {
                 bt={bt} 
                 blackboard={blackboard} 
                 setCurrentAction={setCurrentAction}
+                setCurrentExpression={setCurrentExpression}
                 setPenguinPosition={setPenguinPosition}
                 penguinPosition={penguinPosition}
                 setChatHistory={setChatHistory}
@@ -186,6 +196,7 @@ const App = () => {
                <Stage />
                <Penguin3D 
                   currentAction={currentAction} 
+                  currentExpression={currentExpression}
                   position={penguinPosition}
                   onPointerDown={(e) => {
                       // 0: 左键, 1: 中键, 2: 右键

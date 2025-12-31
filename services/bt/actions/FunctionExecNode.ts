@@ -36,13 +36,25 @@ export default class FunctionExecNode extends Action {
     // Handle tool results
     if (result.toolResult && result.toolResult.actions) {
       console.log('BT: FunctionExecNode - Setting pendingActions:', result.toolResult.actions);
-      // 将动作存入黑板的待播放队列，让行为树的专门分支去处理，避免被 IDLE 覆盖
+      // 将动作存入黑板的待播放队列
       blackboard?.set('pendingActions', result.toolResult.actions, treeId);
       
+      // 如果有表情数据，存入黑板
+      if (result.toolResult.emotion) {
+        console.log('BT: FunctionExecNode - Setting pendingEmotion:', result.toolResult.emotion);
+        blackboard?.set('pendingEmotion', result.toolResult.emotion, treeId);
+      } else {
+        // 如果没传，默认设为 NEUTRAL
+        blackboard?.set('pendingEmotion', 'NEUTRAL', treeId);
+      }
+      
       // Also send a text confirmation
+      const actionsText = result.toolResult.actions.join(', ');
+      const emotionText = result.toolResult.emotion ? ` with ${result.toolResult.emotion} expression` : '';
+      
       blackboard?.set('bt_output_chat_msg', { 
         role: 'model', 
-        content: `[Performing: ${result.toolResult.actions.join(', ')}]`,
+        content: `[Performing: ${actionsText}${emotionText}]`,
         isToolCall: true 
       });
     }

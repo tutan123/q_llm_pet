@@ -23,6 +23,7 @@ export class NodeFactory {
     this.nodes.set('Sequence', Nodes.Sequence);
     this.nodes.set('Priority', Nodes.Priority);
     this.nodes.set('MemSequence', Nodes.MemSequence);
+    this.nodes.set('ReactiveSequence', Nodes.ReactiveSequence);
     this.nodes.set('Parallel', Nodes.Parallel);
     this.nodes.set('Retry', Nodes.Retry);
     this.nodes.set('Inverter', Nodes.Inverter);
