@@ -1,13 +1,17 @@
 import Action from '../core/Action';
 import { SUCCESS, RUNNING } from '../constants';
 import Tick from '../core/Tick';
+import { NodeOptions } from '../core/BaseNode';
 
 /**
  * FollowPointerNode updates the penguin's position to follow the pointer when dragging.
  */
 export default class FollowPointerNode extends Action {
-  constructor() {
-    super({ name: 'FollowPointerNode' });
+  constructor(options: NodeOptions = {}) {
+    super({ 
+      name: 'FollowPointerNode',
+      ...options
+    });
   }
 
   tick(tick: Tick): number {

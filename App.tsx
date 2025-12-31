@@ -4,6 +4,7 @@ import { OrbitControls, Stars, Environment, ContactShadows, SpotLight } from '@r
 import { Penguin3D } from './components/Penguin3D';
 import { Stage } from './components/Stage';
 import { SettingsModal } from './components/SettingsModal';
+import { BTVisualizer } from './components/BTVisualizer';
 import { ActionType, ChatMessage, LLMSettings } from './types';
 import { ACTION_DURATIONS } from './constants';
 import { createPenguinBT, Blackboard } from './services/bt';
@@ -227,6 +228,11 @@ const App = () => {
 
       {/* Sidebar */}
       <div className="w-96 flex flex-col border-l border-slate-700 bg-slate-900/90 backdrop-blur-md shadow-2xl">
+        {/* BT Visualizer Section */}
+        <div className="h-1/2 border-b border-slate-700 flex flex-col overflow-hidden">
+           <BTVisualizer tree={bt} blackboard={blackboard} />
+        </div>
+
         <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col">
           {chatHistory.length === 0 && (
              <div className="text-center text-slate-500 mt-10">

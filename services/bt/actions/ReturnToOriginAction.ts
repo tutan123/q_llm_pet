@@ -1,13 +1,17 @@
 import Action from '../core/Action';
 import { SUCCESS, FAILURE, RUNNING } from '../constants';
 import Tick from '../core/Tick';
+import { NodeOptions } from '../core/BaseNode';
 
 /**
  * ReturnToOriginAction smoothly moves the penguin back to [0, -1, 0]
  */
 export default class ReturnToOriginAction extends Action {
-  constructor() {
-    super({ name: 'ReturnToOriginAction' });
+  constructor(options: NodeOptions = {}) {
+    super({ 
+      name: 'ReturnToOriginAction',
+      ...options
+    });
   }
 
   tick(tick: Tick): number {

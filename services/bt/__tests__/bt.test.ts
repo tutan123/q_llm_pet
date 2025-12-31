@@ -157,27 +157,25 @@ describe('Behavior Tree Core Logic', () => {
     });
   });
 
-  it('ReturnToOriginAction should move penguin towards [0, -1, 0]', () => {
+  it('ReturnToOriginAction should set bt_output_position towards [0, -1, 0]', () => {
     const tree = new BehaviorTree();
     const bb = new Blackboard();
     const tick = new Tick();
     tick.tree = tree;
     tick.blackboard = bb;
 
-    const setPosition = vi.fn();
-    bb.set('setPenguinPosition', setPosition);
     bb.set('penguinPosition', [1, 0, 1]); // Away from origin
 
     const action = new ReturnToOriginAction();
     const status = action._execute(tick);
 
     expect(status).toBe(RUNNING);
-    expect(setPosition).toHaveBeenCalled();
-    const callArgs = setPosition.mock.calls[0][0];
+    const nextPos = bb.get('bt_output_position');
+    expect(nextPos).toBeDefined();
     // Should be closer to [0, -1, 0] than [1, 0, 1]
-    expect(Math.abs(callArgs[0])).toBeLessThan(1);
-    expect(callArgs[1]).toBeLessThan(0);
-    expect(Math.abs(callArgs[2])).toBeLessThan(1);
+    expect(Math.abs(nextPos[0])).toBeLessThan(1);
+    expect(nextPos[1]).toBeLessThan(0);
+    expect(Math.abs(nextPos[2])).toBeLessThan(1);
   });
 
   it('Priority should reach subsequent branches when ReturnToOriginAction returns FAILURE (at origin)', () => {

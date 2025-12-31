@@ -3,13 +3,17 @@ import { SUCCESS, FAILURE, RUNNING } from '../constants';
 import Tick from '../core/Tick';
 import { sendMessageToLLM } from '../../llmService';
 import { sendToFunctionGemma } from '../../functionGemmaService';
+import { NodeOptions } from '../core/BaseNode';
 
 /**
  * LLMCallNode calls the LLM service asynchronously.
  */
 export default class LLMCallNode extends Action {
-  constructor() {
-    super({ name: 'LLMCallNode' });
+  constructor(options: NodeOptions = {}) {
+    super({ 
+      name: 'LLMCallNode',
+      ...options
+    });
   }
 
   /**

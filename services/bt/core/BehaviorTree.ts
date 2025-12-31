@@ -2,6 +2,8 @@ import { createUUID } from '../b3.functions';
 import Tick from './Tick';
 import BaseNode from './BaseNode';
 import Blackboard from './Blackboard';
+import Composite from './Composite';
+import Decorator from './Decorator';
 
 /**
  * The BehaviorTree class represents the Behavior Tree structure.
@@ -66,8 +68,45 @@ export default class BehaviorTree {
     /* POPULATE BLACKBOARD */
     blackboard.set('openNodes', currOpenNodes, this.id);
     blackboard.set('nodeCount', tick._nodeCount, this.id);
+    blackboard.set('nodeStatuses', Object.fromEntries(tick._nodeStatuses), this.id);
 
     return state;
+  }
+
+  /**
+   * Serializes the behavior tree to a JSON object.
+   */
+  public toJSON(): any {
+    const nodes: any = {};
+    const queue: BaseNode[] = [];
+
+    if (this.root) {
+      queue.push(this.root);
+    }
+
+    while (queue.length > 0) {
+      const node = queue.shift()!;
+      if (nodes[node.id]) continue;
+
+      nodes[node.id] = node.toJSON();
+
+      if (node instanceof Composite) {
+        queue.push(...node.children);
+      } else if (node instanceof Decorator) {
+        if (node.child) {
+          queue.push(node.child);
+        }
+      }
+    }
+
+    return {
+      id: this.id,
+      title: this.title,
+      description: this.description,
+      root: this.root ? this.root.id : null,
+      nodes,
+      properties: this.properties,
+    };
   }
 }
 

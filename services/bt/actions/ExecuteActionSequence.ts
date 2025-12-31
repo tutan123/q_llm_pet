@@ -3,13 +3,17 @@ import { SUCCESS, FAILURE, RUNNING } from '../constants';
 import Tick from '../core/Tick';
 import { ActionType } from '../../../types';
 import { ACTION_DURATIONS } from '../../../constants';
+import { NodeOptions } from '../core/BaseNode';
 
 /**
  * ExecuteActionSequence handles a list of actions sequentially within the BT.
  */
 export default class ExecuteActionSequence extends Action {
-  constructor() {
-    super({ name: 'ExecuteActionSequence' });
+  constructor(options: NodeOptions = {}) {
+    super({ 
+      name: 'ExecuteActionSequence',
+      ...options
+    });
   }
 
   tick(tick: Tick): number {

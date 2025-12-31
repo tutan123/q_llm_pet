@@ -1,13 +1,17 @@
 import Action from '../core/Action';
 import { SUCCESS, FAILURE } from '../constants';
 import Tick from '../core/Tick';
+import { NodeOptions } from '../core/BaseNode';
 
 /**
  * FunctionExecNode executes the tool calling results from LLM.
  */
 export default class FunctionExecNode extends Action {
-  constructor() {
-    super({ name: 'FunctionExecNode' });
+  constructor(options: NodeOptions = {}) {
+    super({ 
+      name: 'FunctionExecNode',
+      ...options
+    });
   }
 
   tick(tick: Tick): number {

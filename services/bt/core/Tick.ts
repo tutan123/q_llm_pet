@@ -12,6 +12,7 @@ export default class Tick {
   public blackboard: Blackboard | null = null;
   public _openNodes: BaseNode[] = [];
   public _nodeCount: number = 0;
+  public _nodeStatuses: Map<string, number> = new Map();
 
   constructor() {}
 
@@ -29,5 +30,9 @@ export default class Tick {
   }
 
   public _exitNode(node: BaseNode): void {}
+
+  public _recordStatus(node: BaseNode, status: number): void {
+    this._nodeStatuses.set(node.id, status);
+  }
 }
 

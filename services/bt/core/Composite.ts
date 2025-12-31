@@ -28,5 +28,11 @@ export default class Composite extends BaseNode {
     }
     super._closeRecursive(tick);
   }
+
+  public toJSON(): any {
+    const json = super.toJSON();
+    json.children = this.children.map(child => child.id);
+    return json;
+  }
 }
 

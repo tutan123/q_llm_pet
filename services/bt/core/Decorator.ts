@@ -20,5 +20,13 @@ export default class Decorator extends BaseNode {
     });
     this.child = child;
   }
+
+  public toJSON(): any {
+    const json = super.toJSON();
+    if (this.child) {
+      json.child = this.child.id;
+    }
+    return json;
+  }
 }
 

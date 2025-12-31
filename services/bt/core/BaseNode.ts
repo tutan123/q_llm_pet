@@ -47,6 +47,9 @@ export default class BaseNode {
     // TICK
     const status = this._tick(tick);
 
+    // Record status for debugging/visualization
+    tick._recordStatus(this, status);
+
     // CLOSE
     if (status !== RUNNING) {
       this._close(tick);
@@ -102,5 +105,19 @@ export default class BaseNode {
   }
   public close(tick: Tick): void {}
   public exit(tick: Tick): void {}
+
+  /**
+   * Serializes the node to a JSON-compatible object.
+   */
+  public toJSON(): any {
+    return {
+      id: this.id,
+      name: this.name,
+      category: this.category,
+      title: this.title,
+      description: this.description,
+      properties: this.properties,
+    };
+  }
 }
 
