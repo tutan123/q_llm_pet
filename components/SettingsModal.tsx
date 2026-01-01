@@ -17,6 +17,42 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
 
   if (!isOpen) return null;
 
+  const handleProviderSwitch = (provider: 'gemini' | 'custom' | 'functiongemma') => {
+    let newState = { ...localSettings, provider };
+    
+    // 切换时，根据对应提供商的存储配置同步到当前活跃配置
+    if (provider === 'custom' && localSettings.customSettings) {
+      newState.baseUrl = localSettings.customSettings.baseUrl;
+      newState.apiKey = localSettings.customSettings.apiKey;
+      newState.modelName = localSettings.customSettings.modelName;
+    } else if (provider === 'functiongemma' && localSettings.gemmaSettings) {
+      newState.baseUrl = localSettings.gemmaSettings.baseUrl;
+      newState.apiKey = localSettings.gemmaSettings.apiKey;
+      newState.modelName = localSettings.gemmaSettings.modelName;
+    }
+    
+    setLocalSettings(newState);
+  };
+
+  const updateSetting = (key: 'baseUrl' | 'apiKey' | 'modelName', value: string) => {
+    const newState = { ...localSettings, [key]: value };
+    
+    // 同步更新子配置，确保切换回来时能保留
+    if (localSettings.provider === 'custom') {
+      newState.customSettings = {
+        ...(localSettings.customSettings || { baseUrl: '', apiKey: '', modelName: '' }),
+        [key]: value
+      };
+    } else if (localSettings.provider === 'functiongemma') {
+      newState.gemmaSettings = {
+        ...(localSettings.gemmaSettings || { baseUrl: '', apiKey: '', modelName: '' }),
+        [key]: value
+      };
+    }
+    
+    setLocalSettings(newState);
+  };
+
   const handleSave = () => {
     onSave(localSettings);
     onClose();
@@ -36,7 +72,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
             <label className="block text-xs font-semibold text-slate-400 uppercase mb-1">Provider</label>
             <div className="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
               <button
-                onClick={() => setLocalSettings({...localSettings, provider: 'gemini'})}
+                onClick={() => handleProviderSwitch('gemini')}
                 className={`flex-1 py-1.5 text-xs rounded-md transition-colors ${
                   localSettings.provider === 'gemini' 
                     ? 'bg-blue-600 text-white shadow-sm' 
@@ -46,7 +82,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                 Gemini
               </button>
               <button
-                onClick={() => setLocalSettings({...localSettings, provider: 'custom'})}
+                onClick={() => handleProviderSwitch('custom')}
                 className={`flex-1 py-1.5 text-xs rounded-md transition-colors ${
                   localSettings.provider === 'custom' 
                     ? 'bg-blue-600 text-white shadow-sm' 
@@ -56,7 +92,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                 OpenAI
               </button>
               <button
-                onClick={() => setLocalSettings({...localSettings, provider: 'functiongemma'})}
+                onClick={() => handleProviderSwitch('functiongemma')}
                 className={`flex-1 py-1.5 text-xs rounded-md transition-colors ${
                   localSettings.provider === 'functiongemma' 
                     ? 'bg-blue-600 text-white shadow-sm' 
@@ -78,7 +114,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                 <input
                   type="text"
                   value={localSettings.baseUrl}
-                  onChange={(e) => setLocalSettings({...localSettings, baseUrl: e.target.value})}
+                  onChange={(e) => updateSetting('baseUrl', e.target.value)}
                   placeholder={localSettings.provider === 'functiongemma' ? "http://localhost:11434/api/generate" : "http://localhost:11434/v1"}
                   className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
                 />
@@ -94,7 +130,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                 <input
                   type="password"
                   value={localSettings.apiKey}
-                  onChange={(e) => setLocalSettings({...localSettings, apiKey: e.target.value})}
+                  onChange={(e) => updateSetting('apiKey', e.target.value)}
                   placeholder="sk-... (optional for local)"
                   className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
                 />
@@ -105,7 +141,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                 <input
                   type="text"
                   value={localSettings.modelName}
-                  onChange={(e) => setLocalSettings({...localSettings, modelName: e.target.value})}
+                  onChange={(e) => updateSetting('modelName', e.target.value)}
                   placeholder="e.g. function-gemma"
                   className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
                 />

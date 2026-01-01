@@ -40,6 +40,18 @@ export interface LLMSettings {
   apiKey: string;
   baseUrl: string; // Used for custom and functiongemma
   modelName: string; // Used for custom or gemini override
+  
+  // 特定提供商的持久化配置，防止共用输入框
+  customSettings?: {
+    apiKey: string;
+    baseUrl: string;
+    modelName: string;
+  };
+  gemmaSettings?: {
+    apiKey: string;
+    baseUrl: string;
+    modelName: string;
+  };
 }
 
 export const AVAILABLE_ACTIONS: ActionType[] = [

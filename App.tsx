@@ -13,7 +13,17 @@ const DEFAULT_SETTINGS: LLMSettings = {
   provider: 'gemini',
   apiKey: '',
   baseUrl: 'http://localhost:11434/v1',
-  modelName: 'llama3'
+  modelName: 'llama3',
+  customSettings: {
+    apiKey: '',
+    baseUrl: 'http://localhost:11434/v1',
+    modelName: 'llama3'
+  },
+  gemmaSettings: {
+    apiKey: '',
+    baseUrl: 'http://localhost:8000/v1/completions',
+    modelName: 'pet-model'
+  }
 };
 
 // --- BT Controller Component ---
