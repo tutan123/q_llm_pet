@@ -1,0 +1,696 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1767230055216" clover="3.2.0">
+  <project timestamp="1767230055217" name="All files">
+    <metrics statements="552" coveredstatements="370" conditionals="320" coveredconditionals="180" methods="106" coveredmethods="84" elements="978" coveredelements="634" complexity="0" loc="552" ncloc="552" packages="8" files="38" classes="38"/>
+    <package name="q_llm_pet">
+      <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="constants.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\constants.ts">
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="3" type="stmt"/>
+        <line num="12" count="3" type="stmt"/>
+      </file>
+      <file name="types.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\types.ts">
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="45" count="3" type="stmt"/>
+        <line num="58" count="3" type="stmt"/>
+      </file>
+    </package>
+    <package name="q_llm_pet.services">
+      <metrics statements="71" coveredstatements="9" conditionals="50" coveredconditionals="1" methods="9" coveredmethods="0"/>
+      <file name="customLLMService.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\customLLMService.ts">
+        <metrics statements="21" coveredstatements="2" conditionals="14" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <line num="5" count="3" type="stmt"/>
+        <line num="29" count="3" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="36" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="57" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="66" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="70" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="72" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="73" count="0" type="stmt"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="76" count="0" type="stmt"/>
+        <line num="81" count="0" type="stmt"/>
+      </file>
+      <file name="functionGemmaService.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\functionGemmaService.ts">
+        <metrics statements="27" coveredstatements="1" conditionals="20" coveredconditionals="0" methods="3" coveredmethods="0"/>
+        <line num="8" count="3" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="39" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="46" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="49" count="0" type="stmt"/>
+        <line num="52" count="0" type="stmt"/>
+        <line num="53" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="54" count="0" type="stmt"/>
+        <line num="57" count="0" type="stmt"/>
+        <line num="58" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="64" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="71" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="72" count="0" type="stmt"/>
+        <line num="76" count="0" type="stmt"/>
+        <line num="79" count="0" type="stmt"/>
+      </file>
+      <file name="geminiService.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\geminiService.ts">
+        <metrics statements="16" coveredstatements="5" conditionals="12" coveredconditionals="1" methods="2" coveredmethods="0"/>
+        <line num="4" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="5" count="3" type="stmt"/>
+        <line num="8" count="3" type="stmt"/>
+        <line num="35" count="3" type="stmt"/>
+        <line num="37" count="3" type="stmt"/>
+        <line num="41" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="57" count="0" type="stmt"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="63" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="65" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="66" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+      </file>
+      <file name="llmService.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\llmService.ts">
+        <metrics statements="7" coveredstatements="1" conditionals="4" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <line num="6" count="3" type="stmt"/>
+        <line num="11" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="13" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="q_llm_pet.services.bt">
+      <metrics statements="85" coveredstatements="75" conditionals="47" coveredconditionals="26" methods="11" coveredmethods="10"/>
+      <file name="PenguinBT.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\PenguinBT.ts">
+        <metrics statements="3" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="106" count="0" type="stmt"/>
+      </file>
+      <file name="b3.functions.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\b3.functions.ts">
+        <metrics statements="9" coveredstatements="9" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="9" count="162" type="stmt"/>
+        <line num="10" count="162" type="stmt"/>
+        <line num="11" count="162" type="stmt"/>
+        <line num="12" count="5832" type="stmt"/>
+        <line num="15" count="162" type="stmt"/>
+        <line num="18" count="162" type="stmt"/>
+        <line num="20" count="162" type="stmt"/>
+        <line num="22" count="162" type="stmt"/>
+        <line num="23" count="162" type="stmt"/>
+      </file>
+      <file name="constants.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\constants.ts">
+        <metrics statements="8" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="10" type="stmt"/>
+        <line num="2" count="10" type="stmt"/>
+        <line num="3" count="10" type="stmt"/>
+        <line num="4" count="10" type="stmt"/>
+        <line num="6" count="10" type="stmt"/>
+        <line num="7" count="10" type="stmt"/>
+        <line num="8" count="10" type="stmt"/>
+        <line num="9" count="10" type="stmt"/>
+      </file>
+      <file name="factory.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\factory.ts">
+        <metrics statements="62" coveredstatements="55" conditionals="47" coveredconditionals="26" methods="9" coveredmethods="9"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="14" count="36" type="stmt"/>
+        <line num="15" count="36" type="cond" truecount="4" falsecount="0"/>
+        <line num="17" count="22" type="cond" truecount="2" falsecount="0"/>
+        <line num="18" count="22" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="35" count="4" type="stmt"/>
+        <line num="36" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="39" count="4" type="stmt"/>
+        <line num="50" count="1" type="stmt"/>
+        <line num="57" count="1" type="stmt"/>
+        <line num="58" count="1" type="stmt"/>
+        <line num="60" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="61" count="1" type="stmt"/>
+        <line num="64" count="1" type="stmt"/>
+        <line num="65" count="4" type="stmt"/>
+        <line num="66" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="68" count="4" type="stmt"/>
+        <line num="70" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="71" count="2" type="stmt"/>
+        <line num="72" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="73" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="79" count="1" type="stmt"/>
+        <line num="93" count="1" type="stmt"/>
+        <line num="94" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="95" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="96" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="97" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="99" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="100" count="1" type="stmt"/>
+        <line num="103" count="1" type="stmt"/>
+        <line num="104" count="4" type="stmt"/>
+        <line num="105" count="4" type="stmt"/>
+        <line num="110" count="4" type="stmt"/>
+        <line num="111" count="4" type="stmt"/>
+        <line num="115" count="1" type="stmt"/>
+        <line num="116" count="4" type="stmt"/>
+        <line num="117" count="4" type="stmt"/>
+        <line num="119" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="120" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="121" count="3" type="stmt"/>
+        <line num="122" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="123" count="3" type="stmt"/>
+        <line num="125" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="126" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="127" count="0" type="stmt"/>
+        <line num="128" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="129" count="0" type="stmt"/>
+        <line num="134" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="135" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="138" count="1" type="stmt"/>
+      </file>
+      <file name="index.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\index.ts">
+        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="3" type="stmt"/>
+        <line num="2" count="3" type="stmt"/>
+        <line num="33" count="3" type="stmt"/>
+      </file>
+    </package>
+    <package name="q_llm_pet.services.bt.actions">
+      <metrics statements="157" coveredstatements="108" conditionals="81" coveredconditionals="48" methods="22" coveredmethods="17"/>
+      <file name="ExecuteActionSequence.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\actions\ExecuteActionSequence.ts">
+        <metrics statements="27" coveredstatements="0" conditionals="17" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="22" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="25" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="29" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="30" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="33" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="43" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="45" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="46" count="0" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="52" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="53" count="0" type="stmt"/>
+        <line num="54" count="0" type="stmt"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="58" count="0" type="stmt"/>
+      </file>
+      <file name="FollowPointerNode.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\actions\FollowPointerNode.ts">
+        <metrics statements="8" coveredstatements="0" conditionals="5" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="23" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+      </file>
+      <file name="FunctionExecNode.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\actions\FunctionExecNode.ts">
+        <metrics statements="24" coveredstatements="24" conditionals="13" coveredconditionals="13" methods="2" coveredmethods="2"/>
+        <line num="11" count="4" type="stmt"/>
+        <line num="18" count="4" type="stmt"/>
+        <line num="19" count="4" type="stmt"/>
+        <line num="20" count="4" type="stmt"/>
+        <line num="22" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="27" count="3" type="stmt"/>
+        <line num="30" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="37" count="3" type="cond" truecount="4" falsecount="0"/>
+        <line num="38" count="2" type="stmt"/>
+        <line num="40" count="2" type="stmt"/>
+        <line num="43" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="48" count="1" type="stmt"/>
+        <line num="52" count="2" type="stmt"/>
+        <line num="53" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="55" count="2" type="stmt"/>
+        <line num="63" count="3" type="stmt"/>
+        <line num="66" count="4" type="stmt"/>
+        <line num="67" count="4" type="stmt"/>
+        <line num="69" count="4" type="stmt"/>
+      </file>
+      <file name="LLMCallNode.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\actions\LLMCallNode.ts">
+        <metrics statements="43" coveredstatements="32" conditionals="19" coveredconditionals="13" methods="5" coveredmethods="4"/>
+        <line num="13" count="5" type="stmt"/>
+        <line num="23" count="8" type="stmt"/>
+        <line num="24" count="8" type="stmt"/>
+        <line num="26" count="8" type="stmt"/>
+        <line num="28" count="8" type="stmt"/>
+        <line num="29" count="8" type="stmt"/>
+        <line num="30" count="8" type="stmt"/>
+        <line num="36" count="7" type="stmt"/>
+        <line num="37" count="7" type="stmt"/>
+        <line num="38" count="7" type="stmt"/>
+        <line num="40" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="41" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="42" count="5" type="stmt"/>
+        <line num="43" count="5" type="stmt"/>
+        <line num="45" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="47" count="3" type="stmt"/>
+        <line num="48" count="3" type="stmt"/>
+        <line num="54" count="5" type="cond" truecount="2" falsecount="2"/>
+        <line num="58" count="5" type="stmt"/>
+        <line num="59" count="2" type="stmt"/>
+        <line num="60" count="2" type="stmt"/>
+        <line num="61" count="2" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="68" count="5" type="stmt"/>
+        <line num="71" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="75" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="76" count="1" type="stmt"/>
+        <line num="78" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="79" count="0" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="83" count="1" type="stmt"/>
+        <line num="85" count="1" type="stmt"/>
+        <line num="87" count="1" type="stmt"/>
+        <line num="88" count="1" type="stmt"/>
+        <line num="91" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="92" count="0" type="stmt"/>
+        <line num="93" count="0" type="stmt"/>
+        <line num="94" count="0" type="stmt"/>
+        <line num="95" count="0" type="stmt"/>
+        <line num="98" count="0" type="stmt"/>
+      </file>
+      <file name="PlayAnimationAction.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\actions\PlayAnimationAction.ts">
+        <metrics statements="12" coveredstatements="12" conditionals="7" coveredconditionals="7" methods="3" coveredmethods="3"/>
+        <line num="12" count="3" type="stmt"/>
+        <line num="19" count="3" type="stmt"/>
+        <line num="20" count="3" type="stmt"/>
+        <line num="24" count="5" type="stmt"/>
+        <line num="25" count="5" type="stmt"/>
+        <line num="28" count="5" type="stmt"/>
+        <line num="30" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="31" count="4" type="stmt"/>
+        <line num="32" count="4" type="stmt"/>
+        <line num="33" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="34" count="3" type="stmt"/>
+        <line num="38" count="2" type="stmt"/>
+      </file>
+      <file name="PlayExpressionAction.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\actions\PlayExpressionAction.ts">
+        <metrics statements="17" coveredstatements="15" conditionals="11" coveredconditionals="7" methods="3" coveredmethods="3"/>
+        <line num="20" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="21" count="2" type="stmt"/>
+        <line num="29" count="2" type="stmt"/>
+        <line num="30" count="2" type="stmt"/>
+        <line num="34" count="2" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="38" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="43" count="2" type="stmt"/>
+        <line num="46" count="2" type="stmt"/>
+        <line num="48" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="49" count="1" type="stmt"/>
+        <line num="50" count="1" type="stmt"/>
+        <line num="51" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="52" count="1" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+      </file>
+      <file name="ReturnToOriginAction.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\actions\ReturnToOriginAction.ts">
+        <metrics statements="16" coveredstatements="15" conditionals="5" coveredconditionals="4" methods="2" coveredmethods="2"/>
+        <line num="11" count="3" type="stmt"/>
+        <line num="18" count="3" type="stmt"/>
+        <line num="21" count="3" type="stmt"/>
+        <line num="23" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="27" count="3" type="stmt"/>
+        <line num="30" count="3" type="stmt"/>
+        <line num="31" count="3" type="stmt"/>
+        <line num="32" count="3" type="stmt"/>
+        <line num="33" count="3" type="stmt"/>
+        <line num="35" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="37" count="2" type="stmt"/>
+        <line num="41" count="1" type="stmt"/>
+        <line num="42" count="1" type="stmt"/>
+        <line num="49" count="1" type="stmt"/>
+        <line num="50" count="3" type="stmt"/>
+      </file>
+      <file name="Wait.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\actions\Wait.ts">
+        <metrics statements="10" coveredstatements="10" conditionals="4" coveredconditionals="4" methods="3" coveredmethods="3"/>
+        <line num="18" count="5" type="stmt"/>
+        <line num="22" count="5" type="stmt"/>
+        <line num="23" count="5" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="32" count="2" type="stmt"/>
+        <line num="33" count="2" type="stmt"/>
+        <line num="35" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="39" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="q_llm_pet.services.bt.composites">
+      <metrics statements="64" coveredstatements="59" conditionals="51" coveredconditionals="45" methods="14" coveredmethods="14"/>
+      <file name="IfThenElse.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\composites\IfThenElse.ts">
+        <metrics statements="14" coveredstatements="14" conditionals="12" coveredconditionals="12" methods="2" coveredmethods="2"/>
+        <line num="14" count="6" type="stmt"/>
+        <line num="22" count="6" type="stmt"/>
+        <line num="23" count="6" type="stmt"/>
+        <line num="24" count="6" type="stmt"/>
+        <line num="26" count="6" type="cond" truecount="4" falsecount="0"/>
+        <line num="27" count="2" type="stmt"/>
+        <line num="30" count="4" type="stmt"/>
+        <line num="32" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="34" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="35" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="41" count="1" type="stmt"/>
+      </file>
+      <file name="MemSequence.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\composites\MemSequence.ts">
+        <metrics statements="10" coveredstatements="10" conditionals="8" coveredconditionals="8" methods="3" coveredmethods="3"/>
+        <line num="11" count="3" type="stmt"/>
+        <line num="18" count="6" type="stmt"/>
+        <line num="22" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="24" count="4" type="stmt"/>
+        <line num="25" count="7" type="stmt"/>
+        <line num="27" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="28" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="31" count="2" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+      </file>
+      <file name="Parallel.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\composites\Parallel.ts">
+        <metrics statements="22" coveredstatements="18" conditionals="20" coveredconditionals="14" methods="3" coveredmethods="3"/>
+        <line num="12" count="2" type="stmt"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="20" count="2" type="stmt"/>
+        <line num="21" count="2" type="stmt"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="24" count="2" type="stmt"/>
+        <line num="25" count="4" type="stmt"/>
+        <line num="27" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="28" count="2" type="stmt"/>
+        <line num="29" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="34" count="2" type="cond" truecount="2" falsecount="2"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="38" count="2" type="cond" truecount="4" falsecount="0"/>
+        <line num="39" count="1" type="stmt"/>
+        <line num="40" count="1" type="stmt"/>
+        <line num="43" count="1" type="cond" truecount="2" falsecount="3"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="48" count="1" type="stmt"/>
+        <line num="52" count="1" type="stmt"/>
+        <line num="53" count="2" type="stmt"/>
+      </file>
+      <file name="Priority.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\composites\Priority.ts">
+        <metrics statements="6" coveredstatements="6" conditionals="4" coveredconditionals="4" methods="2" coveredmethods="2"/>
+        <line num="11" count="10" type="stmt"/>
+        <line num="18" count="8" type="stmt"/>
+        <line num="19" count="16" type="stmt"/>
+        <line num="21" count="16" type="cond" truecount="2" falsecount="0"/>
+        <line num="22" count="6" type="stmt"/>
+        <line num="26" count="2" type="stmt"/>
+      </file>
+      <file name="ReactiveSequence.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\composites\ReactiveSequence.ts">
+        <metrics statements="6" coveredstatements="5" conditionals="3" coveredconditionals="3" methods="2" coveredmethods="2"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="23" count="4" type="stmt"/>
+        <line num="24" count="7" type="stmt"/>
+        <line num="28" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="32" count="4" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+      </file>
+      <file name="Sequence.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\composites\Sequence.ts">
+        <metrics statements="6" coveredstatements="6" conditionals="4" coveredconditionals="4" methods="2" coveredmethods="2"/>
+        <line num="11" count="7" type="stmt"/>
+        <line num="18" count="5" type="stmt"/>
+        <line num="19" count="9" type="stmt"/>
+        <line num="21" count="9" type="cond" truecount="2" falsecount="0"/>
+        <line num="22" count="3" type="stmt"/>
+        <line num="26" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="q_llm_pet.services.bt.conditions">
+      <metrics statements="6" coveredstatements="6" conditionals="8" coveredconditionals="7" methods="2" coveredmethods="2"/>
+      <file name="CheckBlackboardCondition.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\conditions\CheckBlackboardCondition.ts">
+        <metrics statements="6" coveredstatements="6" conditionals="8" coveredconditionals="7" methods="2" coveredmethods="2"/>
+        <line num="17" count="2" type="stmt"/>
+        <line num="25" count="2" type="stmt"/>
+        <line num="26" count="2" type="stmt"/>
+        <line num="27" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="29" count="2" type="stmt"/>
+        <line num="31" count="2" type="cond" truecount="2" falsecount="0"/>
+      </file>
+    </package>
+    <package name="q_llm_pet.services.bt.core">
+      <metrics statements="121" coveredstatements="75" conditionals="57" coveredconditionals="32" methods="38" coveredmethods="33"/>
+      <file name="Action.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\core\Action.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="9" count="68" type="stmt"/>
+      </file>
+      <file name="BaseNode.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\core\BaseNode.ts">
+        <metrics statements="32" coveredstatements="30" conditionals="17" coveredconditionals="14" methods="14" coveredmethods="13"/>
+        <line num="26" count="112" type="stmt"/>
+        <line num="27" count="112" type="cond" truecount="1" falsecount="1"/>
+        <line num="28" count="112" type="cond" truecount="1" falsecount="1"/>
+        <line num="29" count="112" type="cond" truecount="2" falsecount="0"/>
+        <line num="30" count="112" type="cond" truecount="2" falsecount="0"/>
+        <line num="31" count="112" type="cond" truecount="2" falsecount="0"/>
+        <line num="32" count="112" type="stmt"/>
+        <line num="40" count="98" type="stmt"/>
+        <line num="43" count="98" type="cond" truecount="2" falsecount="0"/>
+        <line num="44" count="90" type="stmt"/>
+        <line num="48" count="98" type="stmt"/>
+        <line num="51" count="98" type="stmt"/>
+        <line num="54" count="98" type="cond" truecount="2" falsecount="0"/>
+        <line num="55" count="74" type="stmt"/>
+        <line num="59" count="98" type="stmt"/>
+        <line num="61" count="98" type="stmt"/>
+        <line num="65" count="98" type="stmt"/>
+        <line num="66" count="98" type="stmt"/>
+        <line num="70" count="90" type="stmt"/>
+        <line num="71" count="90" type="stmt"/>
+        <line num="72" count="90" type="stmt"/>
+        <line num="76" count="98" type="stmt"/>
+        <line num="77" count="98" type="stmt"/>
+        <line num="81" count="74" type="stmt"/>
+        <line num="82" count="74" type="stmt"/>
+        <line num="83" count="74" type="stmt"/>
+        <line num="87" count="98" type="stmt"/>
+        <line num="88" count="98" type="stmt"/>
+        <line num="96" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="104" count="0" type="stmt"/>
+        <line num="113" count="4" type="stmt"/>
+      </file>
+      <file name="BehaviorTree.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\core\BehaviorTree.ts">
+        <metrics statements="43" coveredstatements="6" conditionals="20" coveredconditionals="0" methods="3" coveredmethods="1"/>
+        <line num="20" count="50" type="stmt"/>
+        <line num="21" count="50" type="stmt"/>
+        <line num="22" count="50" type="stmt"/>
+        <line num="23" count="50" type="stmt"/>
+        <line num="24" count="50" type="stmt"/>
+        <line num="25" count="50" type="stmt"/>
+        <line num="32" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="36" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="43" count="0" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="51" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="52" count="0" type="stmt"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="56" count="0" type="stmt"/>
+        <line num="57" count="0" type="stmt"/>
+        <line num="58" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="73" count="0" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="81" count="0" type="stmt"/>
+        <line num="83" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="84" count="0" type="stmt"/>
+        <line num="87" count="0" type="stmt"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="89" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="91" count="0" type="stmt"/>
+        <line num="93" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="94" count="0" type="stmt"/>
+        <line num="95" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="96" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="102" count="0" type="stmt"/>
+      </file>
+      <file name="Blackboard.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\core\Blackboard.ts">
+        <metrics statements="19" coveredstatements="19" conditionals="8" coveredconditionals="8" methods="6" coveredmethods="6"/>
+        <line num="10" count="50" type="stmt"/>
+        <line num="11" count="50" type="stmt"/>
+        <line num="15" count="380" type="cond" truecount="2" falsecount="0"/>
+        <line num="16" count="43" type="stmt"/>
+        <line num="23" count="380" type="stmt"/>
+        <line num="27" count="358" type="stmt"/>
+        <line num="28" count="358" type="cond" truecount="2" falsecount="0"/>
+        <line num="29" count="86" type="stmt"/>
+        <line num="31" count="358" type="stmt"/>
+        <line num="35" count="440" type="stmt"/>
+        <line num="37" count="440" type="cond" truecount="2" falsecount="0"/>
+        <line num="38" count="380" type="stmt"/>
+        <line num="40" count="380" type="cond" truecount="2" falsecount="0"/>
+        <line num="41" count="358" type="stmt"/>
+        <line num="45" count="440" type="stmt"/>
+        <line num="49" count="269" type="stmt"/>
+        <line num="50" count="269" type="stmt"/>
+        <line num="54" count="171" type="stmt"/>
+        <line num="55" count="171" type="stmt"/>
+      </file>
+      <file name="Composite.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\core\Composite.ts">
+        <metrics statements="8" coveredstatements="5" conditionals="3" coveredconditionals="3" methods="4" coveredmethods="3"/>
+        <line num="16" count="30" type="stmt"/>
+        <line num="22" count="30" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="33" count="2" type="stmt"/>
+        <line num="34" count="3" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+      </file>
+      <file name="Condition.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\core\Condition.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="9" count="2" type="stmt"/>
+      </file>
+      <file name="Decorator.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\core\Decorator.ts">
+        <metrics statements="6" coveredstatements="2" conditionals="5" coveredconditionals="3" methods="2" coveredmethods="1"/>
+        <line num="15" count="12" type="stmt"/>
+        <line num="21" count="12" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="26" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+      </file>
+      <file name="Tick.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\core\Tick.ts">
+        <metrics statements="11" coveredstatements="11" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="7"/>
+        <line num="9" count="48" type="stmt"/>
+        <line num="10" count="48" type="stmt"/>
+        <line num="11" count="48" type="stmt"/>
+        <line num="12" count="48" type="stmt"/>
+        <line num="13" count="48" type="stmt"/>
+        <line num="14" count="48" type="stmt"/>
+        <line num="15" count="48" type="stmt"/>
+        <line num="20" count="98" type="stmt"/>
+        <line num="21" count="98" type="stmt"/>
+        <line num="29" count="74" type="stmt"/>
+        <line num="35" count="94" type="stmt"/>
+      </file>
+    </package>
+    <package name="q_llm_pet.services.bt.decorators">
+      <metrics statements="44" coveredstatements="34" conditionals="26" coveredconditionals="21" methods="10" coveredmethods="8"/>
+      <file name="Inverter.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\decorators\Inverter.ts">
+        <metrics statements="9" coveredstatements="8" conditionals="7" coveredconditionals="6" methods="2" coveredmethods="2"/>
+        <line num="13" count="6" type="stmt"/>
+        <line num="20" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="24" count="6" type="stmt"/>
+        <line num="26" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="27" count="2" type="stmt"/>
+        <line num="28" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="29" count="2" type="stmt"/>
+        <line num="32" count="2" type="stmt"/>
+      </file>
+      <file name="Retry.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\decorators\Retry.ts">
+        <metrics statements="15" coveredstatements="14" conditionals="11" coveredconditionals="10" methods="3" coveredmethods="3"/>
+        <line num="13" count="4" type="stmt"/>
+        <line num="18" count="4" type="stmt"/>
+        <line num="22" count="8" type="stmt"/>
+        <line num="26" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="30" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="32" count="4" type="stmt"/>
+        <line num="33" count="8" type="stmt"/>
+        <line num="35" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="36" count="2" type="stmt"/>
+        <line num="37" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="38" count="5" type="stmt"/>
+        <line num="39" count="5" type="stmt"/>
+        <line num="41" count="1" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+      </file>
+      <file name="StatusToBlackboard.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\decorators\StatusToBlackboard.ts">
+        <metrics statements="7" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="25" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+      </file>
+      <file name="Timeout.ts" path="G:\Projects\Research\AVATAR\q_llm_pet\services\bt\decorators\Timeout.ts">
+        <metrics statements="13" coveredstatements="12" conditionals="6" coveredconditionals="5" methods="3" coveredmethods="3"/>
+        <line num="17" count="2" type="stmt"/>
+        <line num="21" count="2" type="stmt"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="26" count="2" type="stmt"/>
+        <line num="27" count="2" type="stmt"/>
+        <line num="31" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="35" count="3" type="stmt"/>
+        <line num="36" count="3" type="stmt"/>
+        <line num="38" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="39" count="1" type="stmt"/>
+        <line num="42" count="2" type="stmt"/>
+        <line num="44" count="2" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>
