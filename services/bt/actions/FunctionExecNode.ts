@@ -18,52 +18,61 @@ export default class FunctionExecNode extends Action {
     const blackboard = tick.blackboard;
     const treeId = tick.tree?.id;
     const result = blackboard?.get('lastLLMResult', treeId);
+    const rawToolCalls = blackboard?.get('llm_raw_tool_calls', treeId);
     
     if (!result) {
-      // console.log('BT: FunctionExecNode - No result to execute');
       return FAILURE;
     }
 
     console.log('BT: FunctionExecNode - Executing result:', result);
 
-    // Handle text response
-    if (result.text) {
-      console.log('BT: FunctionExecNode - Setting chat history text');
-      // Set output key instead of calling a callback directly
-      blackboard?.set('bt_output_chat_msg', { role: 'model', content: result.text });
-    }
+    const outputs: any[] = [];
 
-    // Handle tool results
+    // --- 1. 协议记录 (OpenAI Protocol Message) ---
+    // 这一条消息必须存在，用于关联 tool_calls 数据，哪怕 content 为空。
+    // 这条消息在 customLLMService 中会被还原为标准的 assistant 消息。
+    outputs.push({ 
+      role: 'model', 
+      content: result.text || "", 
+      toolCalls: rawToolCalls,
+      isProtocol: true // 显式标记为协议消息
+    });
+
+    // --- 2. 交互逻辑与 UI 气泡 ---
     if (result.toolResult && result.toolResult.actions) {
-      console.log('BT: FunctionExecNode - Setting pendingActions:', result.toolResult.actions);
-      // 将动作存入黑板的待播放队列
+      // 执行 3D 动作
       blackboard?.set('pendingActions', result.toolResult.actions, treeId);
+      blackboard?.set('pendingEmotion', result.toolResult.emotion || 'NEUTRAL', treeId);
       
-      // 如果有表情数据，存入黑板
-      if (result.toolResult.emotion) {
-        console.log('BT: FunctionExecNode - Setting pendingEmotion:', result.toolResult.emotion);
-        blackboard?.set('pendingEmotion', result.toolResult.emotion, treeId);
-      } else {
-        // 如果没传，默认设为 NEUTRAL
-        blackboard?.set('pendingEmotion', 'NEUTRAL', treeId);
-      }
-      
-      // Also send a text confirmation
       const actionsText = result.toolResult.actions.join(', ');
       const emotionText = result.toolResult.emotion ? ` with ${result.toolResult.emotion} expression` : '';
       
-      blackboard?.set('bt_output_chat_msg', { 
+      // 添加黄色 UI 气泡 (仅展示用)
+      outputs.push({ 
         role: 'model', 
         content: `[Performing: ${actionsText}${emotionText}]`,
         isToolCall: true 
       });
+
+      // --- 3. 协议确认 (OpenAI Tool Confirmation) ---
+      if (result.toolResult.toolCallId) {
+        outputs.push({
+          role: 'tool',
+          toolCallId: result.toolResult.toolCallId,
+          content: "success",
+          isProtocol: true
+        });
+      }
     }
 
-    // Clear result so it doesn't execute twice
+    // 发送消息流到 UI
+    if (outputs.length > 0) {
+      blackboard?.set('bt_output_chat_msgs', outputs);
+    }
+
+    // 清理状态
     blackboard?.set('lastLLMResult', null, treeId);
-    
-    // 整个指令流程结束，清除输入信号，让行为树下一帧回到 IDLE 分支
-    console.log('BT: FunctionExecNode - Task complete, clearing hasNewInput signal.');
+    blackboard?.set('llm_raw_tool_calls', null, treeId);
     blackboard?.set('hasNewInput', false);
     
     return SUCCESS;

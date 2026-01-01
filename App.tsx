@@ -87,7 +87,13 @@ const BehaviorController = ({
       blackboard.set('bt_output_position', null); // Consume
     }
 
-    // 4. Handle Chat Output
+    // 4. Handle Chat Output (Multiple Messages)
+    const nextMsgs = blackboard.get('bt_output_chat_msgs');
+    if (nextMsgs && Array.isArray(nextMsgs)) {
+      setChatHistory((prev: any) => [...prev, ...nextMsgs]);
+      blackboard.set('bt_output_chat_msgs', null); // Consume
+    }
+
     const nextMsg = blackboard.get('bt_output_chat_msg');
     if (nextMsg) {
       setChatHistory((prev: any) => [...prev, nextMsg]);
@@ -265,11 +271,11 @@ const App = () => {
                 </ul>
              </div>
           )}
-          {chatHistory.map((msg, idx) => (
+          {chatHistory.filter(m => m.role !== 'tool' && m.content !== "").map((msg, idx) => (
             <div 
                 key={idx} 
                 className={`p-3 rounded-lg max-w-[90%] text-sm shadow-md ${
-                    msg.role === 'user' 
+                  (msg.role === 'user') 
                     ? 'bg-gradient-to-r from-blue-600 to-blue-700 self-end text-white' 
                     : msg.isToolCall 
                         ? 'bg-slate-800 self-start text-amber-300 font-mono text-xs border border-amber-900/50' 

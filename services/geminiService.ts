@@ -1,5 +1,5 @@
 import { GoogleGenAI, FunctionDeclaration, Type, Tool } from "@google/genai";
-import { SYSTEM_INSTRUCTION } from "../constants";
+import { OPENAI_INSTRUCTION } from "../constants";
 
 const apiKey = process.env.API_KEY || '';
 const ai = new GoogleGenAI({ apiKey });
@@ -44,7 +44,7 @@ export const sendMessageToGemini = async (
   const chat = ai.chats.create({
     model: 'gemini-3-flash-preview',
     config: {
-      systemInstruction: SYSTEM_INSTRUCTION,
+      systemInstruction: OPENAI_INSTRUCTION,
       tools: tools,
       temperature: 0.7,
     },

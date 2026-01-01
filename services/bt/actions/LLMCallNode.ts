@@ -57,7 +57,9 @@ export default class LLMCallNode extends Action {
 
       call.then((response) => {
         console.log('BT: LLMCallNode Success', response);
+        // 保存原始 toolCalls 数据用于历史记录构建
         blackboard?.set('llm_response', response, treeId, this.id);
+        blackboard?.set('llm_raw_tool_calls', (response as any).rawToolCalls, treeId, this.id);
         blackboard?.set('llm_status', 'success', treeId, this.id);
       }).catch((error) => {
         console.error('BT: LLMCallNode Failed', error);

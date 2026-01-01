@@ -1,21 +1,22 @@
 import { ChatMessage, LLMSettings, AVAILABLE_ACTIONS } from "../types";
-import { SYSTEM_INSTRUCTION } from "../constants";
+import { GEMMA_INSTRUCTION } from "../constants";
 
 /**
- * Service for FunctionGemma models.
+ * [第二套：FunctionGemma 私有协议 - 单轮指令版]
+ * 专门针对本地微调模型优化。
+ * 核心逻辑：不发送历史记录，确保每次生成都是纯净的单轮指令映射。
  */
 
 export const sendToFunctionGemma = async (
-  history: ChatMessage[],
+  _history: ChatMessage[], // 忽略历史记录
   newMessage: string,
   settings: LLMSettings
 ) => {
-  // 1. 构造紧凑的工具声明（包含表情支持）
-  const TOOL_DECLARATION = `<start_function_declaration>declaration:animate_avatar{description:<escape>Controls the avatar to perform actions and an optional facial expression.<escape>,parameters:{properties:{actions:{description:<escape>Ordered list of actions.<escape>,items:{enum:${JSON.stringify(AVAILABLE_ACTIONS)},type:<escape>STRING<escape>},type:<escape>ARRAY<escape>},emotion:{description:<escape>Optional facial expression.<escape>,enum:[<escape>HAPPY<escape>,<escape>SAD<escape>,<escape>ANGRY<escape>,<escape>SURPRISED<escape>,<escape>EXCITED<escape>,<escape>LOVING<escape>,<escape>CONFUSED<escape>],type:<escape>STRING<escape>}},required:[<escape>actions<escape>],type:<escape>OBJECT<escape>}}<end_function_declaration>`;
+  // 构造工具声明文本
+  const TOOL_DECLARATION = `<start_function_declaration>declaration:animate_avatar{description:<escape>Controls the avatar animations.<escape>,parameters:{properties:{actions:{items:{enum:${JSON.stringify(AVAILABLE_ACTIONS)},type:<escape>STRING<escape>},type:<escape>ARRAY<escape>},emotion:{type:<escape>STRING<escape>}},required:[<escape>actions<escape>],type:<escape>OBJECT<escape>}}<end_function_declaration>`;
 
-  const systemPrompt = `You are a model that can do function calling with the following functions\n${TOOL_DECLARATION}\n\n${SYSTEM_INSTRUCTION}\n\nIMPORTANT: When appropriate, include an "emotion" parameter to reflect the penguin's feelings.`;
+  const systemPrompt = `${GEMMA_INSTRUCTION}\n\nAvailable Tools:\n${TOOL_DECLARATION}`;
 
-  // 2. Make the API request
   const response = await fetch(`${settings.baseUrl.replace(/\/completions$/, '')}/chat/completions`, {
     method: "POST",
     headers: {
@@ -28,7 +29,6 @@ export const sendToFunctionGemma = async (
         { role: "developer", content: systemPrompt },
         { role: "user", content: newMessage }
       ],
-      // 不传递 tools 参数，避免触发服务器的 "auto" tool choice 限制错误
       stream: false,
       temperature: 0.1,
       max_tokens: 256,
@@ -38,22 +38,20 @@ export const sendToFunctionGemma = async (
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`FunctionGemma Error: ${response.status} - ${errorText}`);
+    throw new Error(`FunctionGemma Local Error: ${response.status} - ${errorText}`);
   }
 
   const data = await response.json();
-  const choice = data.choices?.[0];
-  const responseText = choice?.message?.content || "";
+  const responseText = data.choices?.[0]?.message?.content || "";
   
   let text = responseText;
   let toolResult: any = null;
 
-  // 3. 增强的解析逻辑：从文本中提取 call:animate_avatar 及其参数
+  // 使用正则解析
   const callMatch = responseText.match(/call:animate_avatar\{(.*?)\}/);
   if (callMatch) {
     const paramsRaw = callMatch[1];
     
-    // 提取 actions
     const actionsMatch = paramsRaw.match(/actions:\[(.*?)\]/);
     if (actionsMatch) {
       const actions = actionsMatch[1]
@@ -66,14 +64,13 @@ export const sendToFunctionGemma = async (
       }
     }
 
-    // 提取 emotion
-    const emotionMatch = paramsRaw.match(/emotion:(?:<escape>)?(\w+)(?:<escape>)?/);
+    const emotionMatch = paramsRaw.match(/emotion:(?:<escape>)?(['"])?(\w+)\1(?:<escape>)?/);
     if (emotionMatch && toolResult) {
-      toolResult.emotion = emotionMatch[1].toUpperCase();
+      toolResult.emotion = emotionMatch[2].toUpperCase();
     }
 
-    // 清理掉 XML 标签，让 UI 只显示人类能看懂的内容
     text = responseText.replace(/<start_function_call>[\s\S]*?(?:<end_function_call>|$)/g, '').trim();
+    text = text.replace(/call:animate_avatar\{.*?\}/g, '').trim();
   }
 
   return {
@@ -81,4 +78,3 @@ export const sendToFunctionGemma = async (
     toolResult
   };
 };
-

@@ -30,9 +30,11 @@ export interface AnimationRequest {
 }
 
 export interface ChatMessage {
-  role: 'user' | 'model' | 'system';
+  role: 'user' | 'model' | 'system' | 'assistant' | 'tool';
   content: string;
   isToolCall?: boolean;
+  toolCallId?: string;
+  toolCalls?: any[];
 }
 
 export interface LLMSettings {
