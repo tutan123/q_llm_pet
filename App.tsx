@@ -4,6 +4,7 @@ import { OrbitControls, Stars, Environment, ContactShadows, SpotLight } from '@r
 import { Penguin3D } from './components/Penguin3D';
 import { Stage } from './components/Stage';
 import { SettingsModal } from './components/SettingsModal';
+import { BTMapModal } from './components/BTMapModal';
 import { BTVisualizer } from './components/BTVisualizer';
 import { ActionType, ChatMessage, LLMSettings, ExpressionType } from './types';
 import { ACTION_DURATIONS } from './constants';
@@ -114,6 +115,7 @@ const App = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isBTMapOpen, setIsBTMapOpen] = useState(false);
   const [llmSettings, setLlmSettings] = useState<LLMSettings>(() => {
     const saved = localStorage.getItem('penguin_llm_settings');
     return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
@@ -155,6 +157,13 @@ const App = () => {
         onSave={saveSettings}
       />
 
+      <BTMapModal
+        isOpen={isBTMapOpen}
+        onClose={() => setIsBTMapOpen(false)}
+        tree={bt}
+        blackboard={blackboard}
+      />
+
       {/* 3D Viewport */}
       <div className="flex-1 relative h-full">
         <div className="absolute top-4 left-4 z-10 pointer-events-none select-none">
@@ -167,16 +176,30 @@ const App = () => {
           </div>
         </div>
 
-        <button 
-          onClick={() => setIsSettingsOpen(true)}
-          className="absolute top-4 right-4 z-20 p-2 bg-slate-800/50 hover:bg-slate-700 backdrop-blur rounded-full transition-all text-slate-300 hover:text-white"
-          title="Configure Model"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.39a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-          </svg>
-        </button>
+        <div className="absolute top-4 right-4 z-20 flex gap-2">
+          <button 
+            onClick={() => setIsBTMapOpen(true)}
+            className="p-2 bg-slate-800/50 hover:bg-slate-700 backdrop-blur rounded-full transition-all text-slate-300 hover:text-white"
+            title="Behavior Tree Map"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+          </button>
+
+          <button 
+            onClick={() => setIsSettingsOpen(true)}
+            className="p-2 bg-slate-800/50 hover:bg-slate-700 backdrop-blur rounded-full transition-all text-slate-300 hover:text-white"
+            title="Configure Model"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.39a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
 
         <Canvas 
           shadows 

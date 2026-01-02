@@ -11,6 +11,7 @@ import LLMCallNode from './actions/LLMCallNode';
 import FunctionExecNode from './actions/FunctionExecNode';
 import ExecuteActionSequence from './actions/ExecuteActionSequence';
 import CheckBlackboardCondition from './conditions/CheckBlackboardCondition';
+import BlackboardGuard from './decorators/BlackboardGuard';
 import Retry from './decorators/Retry';
 
 /**
@@ -23,17 +24,12 @@ export function createPenguinBT(): BehaviorTree {
     title: 'Penguin Master Brain',
     children: [
       // 1. 紧急中断 / 拖拽交互 (最高优先级)
-      new Sequence({
-        title: 'Drag & Drop Handling',
-        children: [
-          new CheckBlackboardCondition({ 
-            title: 'Is Being Dragged?',
-            key: 'isDragging', 
-            value: true, 
-            scope: 'global' 
-          }),
-          new FollowPointerNode({ title: 'Follow Cursor' }) // 仅位置跟随，不再强加 FLY 动作
-        ]
+      new BlackboardGuard({ 
+        title: 'Is Being Dragged?',
+        key: 'isDragging', 
+        value: true, 
+        scope: 'global',
+        child: new FollowPointerNode({ title: 'Follow Cursor' })
       }),
 
       // 2. 自动回归原点分支
@@ -41,25 +37,25 @@ export function createPenguinBT(): BehaviorTree {
       new ReturnToOriginAction({ title: 'Return to Stage Center' }),
 
       // 3. 点击互动分支
-      new MemSequence({
-        title: 'Click Interaction',
-        children: [
-          new CheckBlackboardCondition({ 
-            title: 'Is Penguin Clicked?',
-            key: 'isClicked', 
-            value: true, 
-            scope: 'global' 
-          }),
-          new PlayAnimationAction({ 
-            title: 'Dance Happily',
-            action: 'DAZZLE', 
-            duration: 2 
-          }), // 播放 2 秒
-          new PlayAnimationAction({ 
-            title: 'Back to Idle',
-            action: 'IDLE' 
-          }) 
-        ]
+      new BlackboardGuard({ 
+        title: 'Is Penguin Clicked?',
+        key: 'isClicked', 
+        value: true, 
+        scope: 'global',
+        child: new MemSequence({
+          title: 'Click Interaction Flow',
+          children: [
+            new PlayAnimationAction({ 
+              title: 'Dance Happily',
+              action: 'DAZZLE', 
+              duration: 2 
+            }), // 播放 2 秒
+            new PlayAnimationAction({ 
+              title: 'Back to Idle',
+              action: 'IDLE' 
+            }) 
+          ]
+        })
       }),
 
       // 3. 处理 pendingActions 序列（LLM 命令执行）
@@ -68,7 +64,7 @@ export function createPenguinBT(): BehaviorTree {
         title: 'Execute LLM Action Chain',
         policy: 'SuccessOnAll',
         children: [
-          new ExecuteActionSequence(),
+          new ExecuteActionSequence({ title: 'Step-by-Step Action sequence' }),
           new PlayExpressionAction({ 
             title: 'Apply LLM Emotion',
             expressionKey: 'pendingEmotion' 
@@ -77,22 +73,22 @@ export function createPenguinBT(): BehaviorTree {
       }),
 
       // 4. 文本指令输入分支 (LLM 决策)
-      new MemSequence({
-        title: 'Process User Command',
-        children: [
-          new CheckBlackboardCondition({ 
-            title: 'New Command Received?',
-            key: 'hasNewInput', 
-            value: true, 
-            scope: 'global' 
-          }),
-          new Retry({
-            title: 'LLM Call (Retry up to 2x)',
-            maxAttempts: 2,
-            child: new LLMCallNode({ title: 'Asking LLM for Actions' })
-          }),
-          new FunctionExecNode({ title: 'Parse & Enqueue Actions' })
-        ]
+      new BlackboardGuard({ 
+        title: 'New Command Received?',
+        key: 'hasNewInput', 
+        value: true, 
+        scope: 'global',
+        child: new MemSequence({
+          title: 'Process User Command Flow',
+          children: [
+            new Retry({
+              title: 'LLM Call (Retry up to 2x)',
+              maxAttempts: 2,
+              child: new LLMCallNode({ title: 'Asking LLM for Actions' })
+            }),
+            new FunctionExecNode({ title: 'Parse & Enqueue Actions' })
+          ]
+        })
       }),
 
       // 5. 默认闲置行为

@@ -2,16 +2,25 @@ import Action from '../core/Action';
 import { SUCCESS, RUNNING } from '../constants';
 import Tick from '../core/Tick';
 import { ActionType } from '../../../types';
+import { NodeOptions } from '../core/BaseNode';
+
+interface PlayAnimationOptions extends NodeOptions {
+  action?: ActionType;
+  duration?: number;
+}
 
 /**
  * PlayAnimationAction sets the current action of the penguin.
  * If a duration is provided, it returns RUNNING until the time is up.
  */
 export default class PlayAnimationAction extends Action {
-  constructor({ action = 'IDLE' as ActionType, duration = 0 } = {}) {
+  constructor(options: PlayAnimationOptions = {}) {
+    const { action = 'IDLE', duration = 0, title, ...rest } = options;
     super({ 
       name: 'PlayAnimationAction', 
-      properties: { action, duration } 
+      title: title || `Animation: ${action}`,
+      properties: { action, duration },
+      ...rest
     });
   }
 
@@ -38,4 +47,3 @@ export default class PlayAnimationAction extends Action {
     return SUCCESS;
   }
 }
-

@@ -11,9 +11,9 @@ export interface DecoratorOptions extends NodeOptions {
 export default class Decorator extends BaseNode {
   public child: BaseNode | null;
 
-  constructor({ child = null, name = 'Decorator', title, properties }: DecoratorOptions = {}) {
+  constructor({ child = null, name = 'Decorator', title, properties, category }: DecoratorOptions = {}) {
     super({
-      category: DECORATOR,
+      category: category || DECORATOR,
       name,
       title,
       properties,

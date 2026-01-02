@@ -20,6 +20,7 @@ export { default as Retry } from './decorators/Retry';
 export { default as Inverter } from './decorators/Inverter';
 export { default as Timeout } from './decorators/Timeout';
 export { default as StatusToBlackboard } from './decorators/StatusToBlackboard';
+export { default as BlackboardGuard } from './decorators/BlackboardGuard';
 
 export { default as LLMCallNode } from './actions/LLMCallNode';
 export { default as FunctionExecNode } from './actions/FunctionExecNode';

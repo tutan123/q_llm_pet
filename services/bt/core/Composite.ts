@@ -12,9 +12,9 @@ export interface CompositeOptions extends NodeOptions {
 export default class Composite extends BaseNode {
   public children: BaseNode[];
 
-  constructor({ children = [], name = 'Composite', title, properties }: CompositeOptions = {}) {
+  constructor({ children = [], name = 'Composite', title, properties, category }: CompositeOptions = {}) {
     super({
-      category: COMPOSITE,
+      category: category || COMPOSITE,
       name,
       title,
       properties,

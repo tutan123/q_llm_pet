@@ -28,6 +28,7 @@ export class NodeFactory {
     this.nodes.set('Retry', Nodes.Retry);
     this.nodes.set('Inverter', Nodes.Inverter);
     this.nodes.set('Timeout', Nodes.Timeout);
+    this.nodes.set('BlackboardGuard', Nodes.BlackboardGuard);
     this.nodes.set('Wait', Nodes.Wait);
   }
 

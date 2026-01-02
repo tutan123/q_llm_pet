@@ -9,11 +9,13 @@ import Tick from '../core/Tick';
 export default class Retry extends Decorator {
   public maxAttempts: number;
 
-  constructor({ maxAttempts = 3, child = null }: { maxAttempts?: number, child?: any } = {}) {
+  constructor({ maxAttempts = 3, child = null, ...options }: { maxAttempts?: number, child?: any, title?: string } = {}) {
     super({
       child,
       name: 'Retry',
-      properties: { maxAttempts }
+      title: options.title || `Retry (${maxAttempts}x)`,
+      properties: { maxAttempts },
+      ...options
     });
     this.maxAttempts = maxAttempts;
   }

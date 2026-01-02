@@ -16,6 +16,7 @@ export default class CheckBlackboardCondition extends Condition {
   constructor({ key = '', value = true, scope = 'tree' as 'tree' | 'global', ...options }: CheckOptions = {}) {
     super({ 
       name: 'CheckBlackboardCondition', 
+      title: options.title || `Check: ${key}`,
       properties: { key, value, scope },
       ...options
     });
