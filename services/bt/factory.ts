@@ -1,142 +1,65 @@
-import * as Nodes from './index';
-import BehaviorTree from './core/BehaviorTree';
+import * as Composites from './composites';
+import * as Actions from './actions';
+import * as Decorators from './decorators';
+import * as Conditions from './conditions';
 import BaseNode from './core/BaseNode';
 
 /**
- * NodeFactory is responsible for creating node instances from JSON data.
+ * NodeFactory manages the mapping between node names and their classes.
  */
 export class NodeFactory {
-  private nodes: Map<string, any> = new Map();
+  private static registry: Record<string, any> = {};
 
-  constructor() {
-    // Register all known nodes
-    Object.keys(Nodes).forEach(key => {
-      const nodeClass = (Nodes as any)[key];
-      if (nodeClass && nodeClass.prototype instanceof Nodes.BaseNode) {
-        // Use the node's name property if available, otherwise the class name
-        const name = nodeClass.prototype.name || key;
-        this.nodes.set(name, nodeClass);
-      }
-    });
-    
-    // Explicitly register common names if they differ
-    this.nodes.set('Sequence', Nodes.Sequence);
-    this.nodes.set('Priority', Nodes.Priority);
-    this.nodes.set('MemSequence', Nodes.MemSequence);
-    this.nodes.set('ReactiveSequence', Nodes.ReactiveSequence);
-    this.nodes.set('Parallel', Nodes.Parallel);
-    this.nodes.set('Retry', Nodes.Retry);
-    this.nodes.set('Inverter', Nodes.Inverter);
-    this.nodes.set('Timeout', Nodes.Timeout);
-    this.nodes.set('BlackboardGuard', Nodes.BlackboardGuard);
-    this.nodes.set('Wait', Nodes.Wait);
+  static {
+    // 自动注册所有核心节点
+    this.registerNodes(Composites);
+    this.registerNodes(Actions);
+    this.registerNodes(Decorators);
+    this.registerNodes(Conditions);
   }
 
-  public createNode(name: string, options: any): BaseNode {
-    const NodeClass = this.nodes.get(name);
-    if (!NodeClass) {
-      throw new Error(`Unknown node type: ${name}`);
+  private static registerNodes(nodeModule: any) {
+    for (const name in nodeModule) {
+      const nodeClass = nodeModule[name];
+      if (typeof nodeClass === 'function') {
+        // 使用类名或类的 name 属性作为 key
+        this.registry[name] = nodeClass;
+        // 兼容 default export 的情况
+        if (nodeClass.name && nodeClass.name !== 'default') {
+          this.registry[nodeClass.name] = nodeClass;
+        }
+      }
     }
+  }
+
+  /**
+   * Create a node instance from a definition object.
+   */
+  static createNode(definition: any): BaseNode {
+    const { name, properties = {}, children = [], child = null } = definition;
+    const NodeClass = this.registry[name];
+
+    if (!NodeClass) {
+      throw new Error(`NodeFactory: Unknown node type "${name}". Make sure it is registered.`);
+    }
+
+    // 构造选项
+    const options: any = { ...properties, ...definition };
+    
+    // 处理子节点（递归创建）
+    if (children && children.length > 0) {
+      options.children = children.map((c: any) => this.createNode(c));
+    } else if (child) {
+      options.child = this.createNode(child);
+    }
+
     return new NodeClass(options);
   }
-}
-
-/**
- * TreeSerializer handles serialization and deserialization of Behavior Trees.
- */
-export class TreeSerializer {
-  private factory: NodeFactory;
-
-  constructor(factory: NodeFactory = new NodeFactory()) {
-    this.factory = factory;
-  }
 
   /**
-   * Serializes a tree to a JSON object.
+   * Manually register a custom node.
    */
-  public serialize(tree: BehaviorTree): any {
-    const nodes: any = {};
-    const queue: BaseNode[] = [];
-
-    if (tree.root) {
-      queue.push(tree.root);
-    }
-
-    while (queue.length > 0) {
-      const node = queue.shift()!;
-      if (nodes[node.id]) continue;
-
-      nodes[node.id] = node.toJSON();
-
-      if (node instanceof Nodes.Composite) {
-        queue.push(...node.children);
-      } else if (node instanceof Nodes.Decorator) {
-        if (node.child) {
-          queue.push(node.child);
-        }
-      }
-    }
-
-    return {
-      id: tree.id,
-      title: tree.title,
-      description: tree.description,
-      root: tree.root ? tree.root.id : null,
-      nodes,
-      properties: tree.properties,
-    };
-  }
-
-  /**
-   * Deserializes a tree from a JSON object.
-   */
-  public deserialize(data: any): BehaviorTree {
-    const tree = new BehaviorTree();
-    tree.id = data.id || tree.id;
-    tree.title = data.title || tree.title;
-    tree.description = data.description || tree.description;
-    tree.properties = data.properties || tree.properties;
-
-    const nodeDataMap = data.nodes || {};
-    const instantiatedNodes: Map<string, BaseNode> = new Map();
-
-    // First pass: create all node instances (without linking children)
-    Object.keys(nodeDataMap).forEach(id => {
-      const nodeData = nodeDataMap[id];
-      const node = this.factory.createNode(nodeData.name, {
-        title: nodeData.title,
-        description: nodeData.description,
-        properties: nodeData.properties,
-      });
-      node.id = id;
-      instantiatedNodes.set(id, node);
-    });
-
-    // Second pass: link children
-    Object.keys(nodeDataMap).forEach(id => {
-      const nodeData = nodeDataMap[id];
-      const node = instantiatedNodes.get(id);
-
-      if (node instanceof Nodes.Composite) {
-        node.children = (nodeData.children || []).map((childId: string) => {
-          const child = instantiatedNodes.get(childId);
-          if (!child) throw new Error(`Node ${id} references non-existent child ${childId}`);
-          return child;
-        });
-      } else if (node instanceof Nodes.Decorator) {
-        if (nodeData.child) {
-          const child = instantiatedNodes.get(nodeData.child);
-          if (!child) throw new Error(`Node ${id} references non-existent child ${nodeData.child}`);
-          node.child = child;
-        }
-      }
-    });
-
-    if (data.root) {
-      tree.root = instantiatedNodes.get(data.root) || null;
-    }
-
-    return tree;
+  static register(name: string, nodeClass: any) {
+    this.registry[name] = nodeClass;
   }
 }
-

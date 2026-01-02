@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import Retry from '../decorators/Retry';
 import Inverter from '../decorators/Inverter';
 import Timeout from '../decorators/Timeout';
+import BlackboardGuard from '../decorators/BlackboardGuard';
 import { SUCCESS, FAILURE, RUNNING } from '../constants';
 import Tick from '../core/Tick';
 import Blackboard from '../core/Blackboard';
@@ -85,6 +86,52 @@ describe('BT Decorators', () => {
           expect(new Inverter({ child: failureAction })._execute(createTick())).toBe(SUCCESS);
           expect(new Inverter({ child: runningAction })._execute(createTick())).toBe(RUNNING);
       });
+  });
+
+  describe('BlackboardGuard Decorator', () => {
+    it('如果条件满足，应执行子节点', () => {
+      const child = new MockAction(SUCCESS);
+      const guard = new BlackboardGuard({ 
+        child, 
+        key: 'testKey', 
+        value: 'testValue',
+        scope: 'global' 
+      });
+      const tick = createTick();
+      tick.blackboard.set('testKey', 'testValue');
+      
+      expect(guard._execute(tick)).toBe(SUCCESS);
+      expect(child.tickCount).toBe(1);
+    });
+
+    it('如果条件不满足，应返回 FAILURE 且不执行子节点', () => {
+      const child = new MockAction(SUCCESS);
+      const guard = new BlackboardGuard({ 
+        child, 
+        key: 'testKey', 
+        value: 'correctValue',
+        scope: 'global' 
+      });
+      const tick = createTick();
+      tick.blackboard.set('testKey', 'wrongValue');
+      
+      expect(guard._execute(tick)).toBe(FAILURE);
+      expect(child.tickCount).toBe(0);
+    });
+
+    it('应支持 tree 作用域的检查', () => {
+      const child = new MockAction(SUCCESS);
+      const guard = new BlackboardGuard({ 
+        child, 
+        key: 'localKey', 
+        value: true,
+        scope: 'tree' 
+      });
+      const tick = createTick();
+      tick.blackboard.set('localKey', true, tick.tree.id);
+      
+      expect(guard._execute(tick)).toBe(SUCCESS);
+    });
   });
 });
 
