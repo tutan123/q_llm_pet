@@ -33,11 +33,17 @@ export default class PlayExpressionAction extends Action {
   tick(tick: Tick): number {
     const { expressionKey, duration: durationProp } = this.properties;
     let expression = this.properties.expression as ExpressionType;
+    const treeId = tick.tree?.id;
     
-    // If expressionKey is provided, override default expression with blackboard value
+    // If expressionKey is provided, read from blackboard
     if (expressionKey) {
-      const kv = tick.blackboard?.get(expressionKey, tick.tree?.id);
-      if (kv) expression = kv as ExpressionType;
+      const kv = tick.blackboard?.get(expressionKey, treeId);
+      if (kv) {
+        expression = kv as ExpressionType;
+      } else {
+        // No pending emotion, return SUCCESS without setting expression (idle state)
+        return SUCCESS;
+      }
     }
 
     const duration = (durationProp as number) * 1000;
@@ -45,8 +51,13 @@ export default class PlayExpressionAction extends Action {
     // Set expression output key (separate from body action)
     tick.blackboard?.set('bt_output_expression', expression);
 
+    // If using expressionKey, clear it after applying to prevent continuous execution
+    if (expressionKey) {
+      tick.blackboard?.set(expressionKey, null, treeId);
+    }
+
     if (duration > 0) {
-      const startTime = tick.blackboard?.get('expressionStartTime', tick.tree?.id, this.id);
+      const startTime = tick.blackboard?.get('expressionStartTime', treeId, this.id);
       const now = Date.now();
       if (now - startTime < duration) {
         return RUNNING;

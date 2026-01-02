@@ -4,7 +4,7 @@ import { OrbitControls, Stars, Environment, ContactShadows, SpotLight } from '@r
 import { Penguin3D } from './components/Penguin3D';
 import { Stage } from './components/Stage';
 import { SettingsModal } from './components/SettingsModal';
-import { BTMapModal } from './components/BTMapModal';
+import { BTFloatingMap } from './components/BTFloatingMap';
 import { BTVisualizer } from './components/BTVisualizer';
 import { ActionType, ChatMessage, LLMSettings, ExpressionType } from './types';
 import { ACTION_DURATIONS } from './constants';
@@ -89,15 +89,21 @@ const BehaviorController = ({
     }
 
     // 4. Handle Chat Output (Multiple Messages)
+    let processedPlural = false;
     const nextMsgs = blackboard.get('bt_output_chat_msgs');
     if (nextMsgs && Array.isArray(nextMsgs)) {
       setChatHistory((prev: any) => [...prev, ...nextMsgs]);
       blackboard.set('bt_output_chat_msgs', null); // Consume
+      processedPlural = true;
     }
 
     const nextMsg = blackboard.get('bt_output_chat_msg');
     if (nextMsg) {
-      setChatHistory((prev: any) => [...prev, nextMsg]);
+      // 只有在没处理过复数消息时，或者单数消息不在复数消息列表中时才添加
+      // 这里为了简单，如果本帧已经处理了复数消息，就跳过单数消息（通常单数是为了兼容旧测试）
+      if (!processedPlural) {
+        setChatHistory((prev: any) => [...prev, nextMsg]);
+      }
       blackboard.set('bt_output_chat_msg', null); // Consume
     }
   });
@@ -157,7 +163,7 @@ const App = () => {
         onSave={saveSettings}
       />
 
-      <BTMapModal
+      <BTFloatingMap
         isOpen={isBTMapOpen}
         onClose={() => setIsBTMapOpen(false)}
         tree={bt}

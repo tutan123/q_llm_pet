@@ -68,6 +68,16 @@ export default class FunctionExecNode extends Action {
     // 发送消息流到 UI
     if (outputs.length > 0) {
       blackboard?.set('bt_output_chat_msgs', outputs);
+      // 为了向后兼容测试：
+      // 1. 如果只有一条非协议消息，设置单数格式
+      // 2. 如果只有一条协议消息且没有toolResult，也设置单数格式（纯文本响应）
+      const nonProtocolOutputs = outputs.filter(o => !o.isProtocol);
+      if (nonProtocolOutputs.length === 1) {
+        blackboard?.set('bt_output_chat_msg', nonProtocolOutputs[0]);
+      } else if (outputs.length === 1 && !result.toolResult && outputs[0].content) {
+        // 纯文本响应：只有一条协议消息，且content不为空
+        blackboard?.set('bt_output_chat_msg', { role: 'model', content: outputs[0].content });
+      }
     }
 
     // 清理状态

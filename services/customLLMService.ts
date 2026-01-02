@@ -96,6 +96,64 @@ AVAILABLE EMOTIONS: ${AVAILABLE_EXPRESSIONS.join(", ")}
         console.error("BT: Failed to parse tool arguments", e);
       }
     }
+  } else {
+    // Fallback: Try regex parsing for FunctionGemma format or [Performing: ...] format
+    let parsed = false;
+    
+    // Try FunctionGemma format: call:animate_avatar{...}
+    const callMatch = text.match(/call:animate_avatar\{(.*?)\}/);
+    if (callMatch) {
+      const paramsRaw = callMatch[1];
+      
+      const actionsMatch = paramsRaw.match(/actions:\[(.*?)\]/);
+      if (actionsMatch) {
+        const actions = actionsMatch[1]
+            .split(',')
+            .map((a: string) => a.replace(/<escape>/g, '').replace(/['"]/g, '').trim())
+            .filter((a: string) => a.length > 0);
+        
+        if (actions.length > 0) {
+          toolResult = { actions };
+        }
+      }
+
+      const emotionMatch = paramsRaw.match(/emotion:(?:<escape>)?(['"])?(\w+)\1(?:<escape>)?/);
+      if (emotionMatch && toolResult) {
+        toolResult.emotion = emotionMatch[2].toUpperCase();
+      }
+
+      // Remove the function call from text
+      text = text.replace(/<start_function_call>[\s\S]*?(?:<end_function_call>|$)/g, '').trim();
+      text = text.replace(/call:animate_avatar\{.*?\}/g, '').trim();
+      parsed = true;
+    }
+    
+    // Try [Performing: ACTION1, ACTION2, EMOTION] format
+    const performingMatch = text.match(/\[Performing:\s*([^\]]+)\]/);
+    if (performingMatch && !parsed) {
+      const content = performingMatch[1];
+      const parts = content.split(',').map(p => p.trim());
+      const actions: string[] = [];
+      let emotion: string | undefined;
+      
+      for (const part of parts) {
+        const upperPart = part.toUpperCase();
+        // Check if it's an emotion
+        if (['HAPPY', 'SAD', 'ANGRY', 'SURPRISED', 'EXCITED', 'SLEEPY', 'LOVING', 'CONFUSED', 'NEUTRAL'].includes(upperPart)) {
+          emotion = upperPart;
+        } else {
+          // Assume it's an action
+          actions.push(upperPart);
+        }
+      }
+      
+      if (actions.length > 0) {
+        toolResult = { actions, emotion: emotion || 'NEUTRAL' };
+      }
+    }
+    
+    // Remove [Performing: ...] patterns from text
+    text = text.replace(/\[Performing:.*?\]/g, '').trim();
   }
 
   return { text, toolResult, rawToolCalls };
