@@ -8,4 +8,7 @@ export { default as PlayAnimationAction } from './PlayAnimationAction';
 export { default as PlayExpressionAction } from './PlayExpressionAction';
 export { default as ReturnToOriginAction } from './ReturnToOriginAction';
 export { default as Wait } from './Wait';
+export { default as UpdateInternalStatesAction } from './UpdateInternalStatesAction';
+export { default as ProactiveLLMNode } from './ProactiveLLMNode';
+export { default as MoveToTargetAction } from './MoveToTargetAction';
 

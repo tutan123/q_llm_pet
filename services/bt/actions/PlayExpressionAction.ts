@@ -61,6 +61,9 @@ export default class PlayExpressionAction extends Action {
       const now = Date.now();
       if (now - startTime < duration) {
         return RUNNING;
+      } else {
+        // 时长到了，自动重置回中性表情
+        tick.blackboard?.set('bt_output_expression', 'NEUTRAL');
       }
     }
     

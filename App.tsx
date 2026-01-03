@@ -38,16 +38,18 @@ const BehaviorController = ({
   penguinPosition,
   setChatHistory,
   chatHistory,
-  llmSettings
+  llmSettings,
+  currentAction // Add this
 }: any) => {
   
   // Inject transient data into blackboard
   useEffect(() => {
     blackboard.set('chatHistory', chatHistory);
     blackboard.set('llmSettings', llmSettings);
-    // 实时同步当前位置到黑板，供 ReturnToOriginAction 使用
+    // 实时同步当前位置和动作到黑板
     blackboard.set('penguinPosition', penguinPosition);
-  }, [chatHistory, llmSettings, penguinPosition, blackboard]);
+    blackboard.set('currentAction', currentAction);
+  }, [chatHistory, llmSettings, penguinPosition, currentAction, blackboard]);
 
   useFrame((state) => {
     // 3D 投影映射：将 2D 鼠标坐标转换为 3D 舞台坐标
@@ -127,9 +129,22 @@ const App = () => {
     return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
   });
 
+  // --- Internal States (Sync from Blackboard) ---
+  const [energy, setEnergy] = useState(100);
+  const [boredom, setBoredom] = useState(0);
+
   // --- Behavior Tree ---
   const bt = useMemo(() => createPenguinBT(), []);
   const blackboard = useMemo(() => new Blackboard(), []);
+
+  // 定时从黑板同步状态到 UI
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setEnergy(blackboard.get('energy') ?? 100);
+      setBoredom(blackboard.get('boredom') ?? 0);
+    }, 500);
+    return () => clearInterval(timer);
+  }, [blackboard]);
   
   // --- Handlers ---
   const saveSettings = (newSettings: LLMSettings) => {
@@ -179,6 +194,30 @@ const App = () => {
           <div className="flex items-center gap-2 mt-2">
              <div className={`w-3 h-3 rounded-full ${currentAction === 'IDLE' ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`}></div>
              <span className="text-sm font-mono opacity-80 text-amber-100">Action: {currentAction}</span>
+          </div>
+          
+          {/* Status Bars */}
+          <div className="mt-4 space-y-2 pointer-events-auto">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold w-12 opacity-70">ENERGY</span>
+              <div className="w-32 h-1.5 bg-slate-800 rounded-full overflow-hidden border border-white/5">
+                <div 
+                  className={`h-full transition-all duration-500 ${energy < 30 ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'}`} 
+                  style={{ width: `${energy}%` }}
+                />
+              </div>
+              <span className="text-[10px] font-mono">{Math.round(energy)}%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold w-12 opacity-70">BOREDOM</span>
+              <div className="w-32 h-1.5 bg-slate-800 rounded-full overflow-hidden border border-white/5">
+                <div 
+                  className={`h-full transition-all duration-500 ${boredom > 70 ? 'bg-amber-500' : 'bg-blue-500'}`} 
+                  style={{ width: `${boredom}%` }}
+                />
+              </div>
+              <span className="text-[10px] font-mono">{Math.round(boredom)}%</span>
+            </div>
           </div>
         </div>
 
@@ -236,9 +275,23 @@ const App = () => {
                 setChatHistory={setChatHistory}
                 chatHistory={chatHistory}
                 llmSettings={llmSettings}
+                currentAction={currentAction} // Add this
             />
             <group position={[0, -1, 0]}>
                <Stage />
+               
+               {/* Penguin Home (小窝) */}
+               <mesh position={[4, 0, -3]}>
+                 <cylinderGeometry args={[1.5, 1.8, 0.2, 32]} />
+                 <meshStandardMaterial color="#2a3a5a" roughness={0.8} />
+                 {/* 小窝顶部的装饰 */}
+                 <mesh position={[0, 0.5, 0]}>
+                   <torusGeometry args={[1.2, 0.1, 16, 32]} />
+                   <meshStandardMaterial color="#4a6a9a" emissive="#1a2a4a" />
+                 </mesh>
+                 <pointLight position={[0, 1, 0]} color="#4a90e2" intensity={2} distance={3} />
+               </mesh>
+
                <Penguin3D 
                   currentAction={currentAction} 
                   currentExpression={currentExpression}

@@ -29,7 +29,18 @@ export default class BlackboardGuard extends Decorator {
     
     const actualValue = blackboard?.get(key, treeId);
     
-    if (actualValue === value) {
+    // 增强逻辑：支持函数判定、数字比较、以及普通相等判定
+    if (typeof value === 'function') {
+      if (value(actualValue)) return this.child._execute(tick);
+    } else if (typeof actualValue === 'number' && typeof value === 'number') {
+      // 针对 energy 这种数值，如果 key 是 energy 且实际值小于等于设定值，触发
+      if (key === 'energy') {
+        if (actualValue <= value) return this.child._execute(tick);
+      } else {
+        // 默认大于等于判定 (用于 boredom 等)
+        if (actualValue >= value) return this.child._execute(tick);
+      }
+    } else if (actualValue === value) {
       return this.child._execute(tick);
     }
     

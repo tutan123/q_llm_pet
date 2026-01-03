@@ -45,6 +45,14 @@ export default class ExecuteActionSequence extends Action {
     if (startTime === 0) {
       blackboard?.set('bt_output_action', action);
       blackboard?.set('sequenceStartTime', now, treeId, this.id);
+      
+      // 消耗能量逻辑：每个新动作开始时扣 5 点
+      if (action !== 'IDLE' && action !== 'SLEEP') {
+        let energy = blackboard?.get('energy') || 100;
+        energy -= 5;
+        blackboard?.set('energy', Math.max(0, energy));
+      }
+      
       return RUNNING;
     }
 

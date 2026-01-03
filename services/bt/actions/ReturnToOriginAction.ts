@@ -45,7 +45,8 @@ export default class ReturnToOriginAction extends Action {
       currentPos[2] + dz * speed
     ];
 
-    // Set output key instead of calling a callback directly
+    // 设置位置，并确保播放走路动画
+    blackboard?.set('bt_output_action', 'WALK');
     blackboard?.set('bt_output_position', nextPos);
     return RUNNING;
   }
