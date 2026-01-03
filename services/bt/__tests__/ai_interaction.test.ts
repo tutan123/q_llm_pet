@@ -31,9 +31,18 @@ describe('AI Interaction Nodes', () => {
       vi.clearAllMocks();
     });
 
-    it('如果没有 userInput，应返回 FAILURE', () => {
+    it('如果没有 userInput，应返回 FAILURE', async () => {
       const node = new LLMCallNode();
+      blackboard.set('lastUserInput', null);
       node.open(tick);
+      
+      // First tick starts the async process
+      expect(node._execute(tick)).toBe(RUNNING);
+      
+      // Wait for the immediate failure in performAsync
+      await Promise.resolve();
+      
+      // Second tick should return the failure result
       expect(node._execute(tick)).toBe(FAILURE);
     });
 
@@ -65,18 +74,23 @@ describe('AI Interaction Nodes', () => {
       expect(node._execute(tick)).toBe(RUNNING);
     });
 
-    it('成功获取响应后应返回 SUCCESS 并清理状态', () => {
+    it('成功获取响应后应返回 SUCCESS 并清理状态', async () => {
       const node = new LLMCallNode();
       blackboard.set('lastUserInput', 'Hello');
       blackboard.set('llmSettings', { provider: 'gemini' });
-      (sendMessageToLLM as any).mockReturnValue(Promise.resolve({ text: 'Hi' }));
-
-      node._execute(tick); // Open and start
-      
       const mockResponse = { text: 'Hi' };
-      blackboard.set('llm_status', 'success', tick.tree!.id, node.id);
-      blackboard.set('llm_response', mockResponse, tick.tree!.id, node.id);
+      (sendMessageToLLM as any).mockReturnValue(Promise.resolve(mockResponse));
+
+      node.open(tick);
       
+      // Tick 1: Starts async
+      expect(node._execute(tick)).toBe(RUNNING);
+      
+      // Wait for promise
+      await Promise.resolve();
+      await Promise.resolve(); // Double resolve to ensure all then() callbacks run
+      
+      // Tick 2: Returns SUCCESS
       const result = node._execute(tick);
       
       expect(result).toBe(SUCCESS);
@@ -85,12 +99,22 @@ describe('AI Interaction Nodes', () => {
       expect(blackboard.get('lastUserInput')).toBe(null);
     });
 
-    it('调用失败时应返回 FAILURE', () => {
+    it('调用失败时应返回 FAILURE', async () => {
       const node = new LLMCallNode();
+      blackboard.set('lastUserInput', 'Hello');
+      blackboard.set('llmSettings', { provider: 'gemini' });
+      (sendMessageToLLM as any).mockRejectedValue(new Error('Network Error'));
+
       node.open(tick);
-      blackboard.set('llm_status', 'failed', tick.tree!.id, node.id);
-      blackboard.set('llm_error', 'Network Error', tick.tree!.id, node.id);
       
+      // Tick 1: Starts async
+      expect(node._execute(tick)).toBe(RUNNING);
+      
+      // Wait for catch() callback
+      await Promise.resolve();
+      await Promise.resolve();
+      
+      // Tick 2: Returns FAILURE
       const result = node._execute(tick);
       
       expect(result).toBe(FAILURE);

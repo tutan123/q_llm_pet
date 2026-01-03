@@ -45,10 +45,13 @@ export default class BaseNode {
     }
 
     // TICK
+    const startTime = Date.now();
     const status = this._tick(tick);
+    const duration = Date.now() - startTime;
 
-    // Record status for debugging/visualization
+    // Record status and duration for debugging/visualization/profiling
     tick._recordStatus(this, status);
+    tick._nodeDurations.set(this.id, duration);
 
     // CLOSE
     if (status !== RUNNING) {

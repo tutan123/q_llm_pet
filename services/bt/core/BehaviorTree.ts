@@ -69,6 +69,7 @@ export default class BehaviorTree {
     blackboard.set('openNodes', currOpenNodes, this.id);
     blackboard.set('nodeCount', tick._nodeCount, this.id);
     blackboard.set('nodeStatuses', Object.fromEntries(tick._nodeStatuses), this.id);
+    blackboard.set('nodeDurations', Object.fromEntries(tick._nodeDurations), this.id);
 
     return state;
   }

@@ -13,6 +13,7 @@ export default class Tick {
   public _openNodes: BaseNode[] = [];
   public _nodeCount: number = 0;
   public _nodeStatuses: Map<string, number> = new Map();
+  public _nodeDurations: Map<string, number> = new Map();
 
   constructor() {}
 
